@@ -2,7 +2,7 @@
 const BlockType = require('../../extension-support/block-type');
 const ArgumentType = require('../../extension-support/argument-type');
 const Remote = require('./remote-library/remotelib');
-class Scratch3Test {
+class Scratch3Robobo {
     constructor (runtime) {
         this.runtime = runtime;
         this.onClap = false;
@@ -1129,4 +1129,4 @@ class Scratch3Test {
     }
 
 }
-module.exports = Scratch3Test;
+module.exports = Scratch3Robobo; 
