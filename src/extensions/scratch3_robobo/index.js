@@ -2,11 +2,11 @@
 const BlockType = require('../../extension-support/block-type');
 const ArgumentType = require('../../extension-support/argument-type');
 const Remote = require('./remote-library/remotelib');
+
 class Scratch3Robobo {
     constructor (runtime) {
         this.runtime = runtime;
-        this.onClap = false;
-        
+        this.onClap = false;        
     }
     getInfo () {
         return {
@@ -512,6 +512,19 @@ class Scratch3Robobo {
                     text: 'When a QR code disappears',
                     blockType: BlockType.HAT,                   
                 },
+                {
+                    opcode: 'openMonitor',
+                    text: 'Open the Robobo Monitor',
+                    blockType: BlockType.COMMAND,
+/*                    
+                    arguments: {
+                        IP: {
+                            type: ArgumentType.STRING,
+                            defaultValue: '192.168.0.39'
+                        }
+                    }
+*/                    
+                },                
             ],
             menus: {
                 // Required: an identifier for this menu, unique within this extension.
@@ -573,6 +586,7 @@ class Scratch3Robobo {
         const {IP} = args;
 
         this.remote = new Remote(IP.trim() ,'');
+        this.ip = IP.trim();
         
         return new Promise(resolve => {
             this.remote.registerCallback('onConnectionChanges', arg => {
@@ -1127,6 +1141,13 @@ class Scratch3Robobo {
             return false;
         }
     }
+
+    openMonitor(){    
+        console.log('IP: '+this.ip);
+        var win = window.open('http://monitor.theroboboproject.com/testing/robobo-monitor.html?ip='+this.ip, '_blank');
+        win.focus();            
+    }
+    
 
 }
 module.exports = Scratch3Robobo; 
