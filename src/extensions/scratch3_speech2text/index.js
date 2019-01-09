@@ -26,7 +26,7 @@ const menuIconURI = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53M
  * The url of the speech server.
  * @type {string}
  */
-const serverURL = 'wss://speech.scratch.mit.edu';
+const serverURL = 'ws://speech.scratch.mit.edu';
 
 /**
  * The amount of time to wait between when we stop sending speech data to the server and when
