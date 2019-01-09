@@ -17,7 +17,7 @@ const Variable = require('./variable');
 
 // Virtual I/O devices.
 const Clock = require('../io/clock');
-const DeviceManager = require('../io/deviceManager');
+const Cloud = require('../io/cloud');
 const Keyboard = require('../io/keyboard');
 const Mouse = require('../io/mouse');
 const MouseWheel = require('../io/mouseWheel');
@@ -67,8 +67,60 @@ const ArgumentTypeMap = (() => {
         shadowType: 'matrix',
         fieldType: 'MATRIX'
     };
+    map[ArgumentType.NOTE] = {
+        shadowType: 'note',
+        fieldType: 'NOTE'
+    };
     return map;
 })();
+
+/**
+ * A pair of functions used to manage the cloud variable limit,
+ * to be used when adding (or attempting to add) or removing a cloud variable.
+ * @typedef {object} CloudDataManager
+ * @property {function} canAddCloudVariable A function to call to check that
+ * a cloud variable can be added.
+ * @property {function} addCloudVariable A function to call to track a new
+ * cloud variable on the runtime.
+ * @property {function} removeCloudVariable A function to call when
+ * removing an existing cloud variable.
+ * @property {function} hasCloudVariables A function to call to check that
+ * the runtime has any cloud variables.
+ */
+
+/**
+ * Creates and manages cloud variable limit in a project,
+ * and returns two functions to be used to add a new
+ * cloud variable (while checking that it can be added)
+ * and remove an existing cloud variable.
+ * These are to be called whenever attempting to create or delete
+ * a cloud variable.
+ * @return {CloudDataManager} The functions to be used when adding or removing a
+ * cloud variable.
+ */
+const cloudDataManager = () => {
+    const limit = 10;
+    let count = 0;
+
+    const canAddCloudVariable = () => count < limit;
+
+    const addCloudVariable = () => {
+        count++;
+    };
+
+    const removeCloudVariable = () => {
+        count--;
+    };
+
+    const hasCloudVariables = () => count > 0;
+
+    return {
+        canAddCloudVariable,
+        addCloudVariable,
+        removeCloudVariable,
+        hasCloudVariables
+    };
+};
 
 /**
  * Predefined "Converted block info" for a separator between blocks in a block category
@@ -170,13 +222,6 @@ class Runtime extends EventEmitter {
         this._hats = {};
 
         /**
-         * Currently known values for edge-activated hats.
-         * Keys are block ID for the hat; values are the currently known values.
-         * @type {Object.<string, *>}
-         */
-        this._edgeActivatedHatValues = {};
-
-        /**
          * A list of script block IDs that were glowing during the previous frame.
          * @type {!Array.<!string>}
          */
@@ -187,6 +232,13 @@ class Runtime extends EventEmitter {
          * @type {number}
          */
         this._nonMonitorThreadCount = 0;
+
+        /**
+         * All threads that finished running and were removed from this.threads
+         * by behaviour in Sequencer.stepThreads.
+         * @type {Array<Thread>}
+         */
+        this._lastStepDoneThreads = null;
 
         /**
          * Currently known number of clones, used to enforce clone limit.
@@ -245,6 +297,9 @@ class Runtime extends EventEmitter {
          */
         this.currentStepTime = null;
 
+        // Set an intial value for this.currentMSecs
+        this.updateCurrentMSecs();
+
         /**
          * Whether any primitive has requested a redraw.
          * Affects whether `Sequencer.stepThreads` will yield
@@ -262,7 +317,7 @@ class Runtime extends EventEmitter {
         /** @type {Object.<string, Object>} */
         this.ioDevices = {
             clock: new Clock(),
-            deviceManager: new DeviceManager(),
+            cloud: new Cloud(this),
             keyboard: new Keyboard(this),
             mouse: new Mouse(this),
             mouseWheel: new MouseWheel(this),
@@ -281,6 +336,42 @@ class Runtime extends EventEmitter {
          * @type {Profiler}
          */
         this.profiler = null;
+
+        const newCloudDataManager = cloudDataManager();
+
+        /**
+         * Check wether the runtime has any cloud data.
+         * @type {function}
+         * @return {boolean} Whether or not the runtime currently has any
+         * cloud variables.
+         */
+        this.hasCloudData = newCloudDataManager.hasCloudVariables;
+
+        /**
+         * A function which checks whether a new cloud variable can be added
+         * to the runtime.
+         * @type {function}
+         * @return {boolean} Whether or not a new cloud variable can be added
+         * to the runtime.
+         */
+        this.canAddCloudVariable = newCloudDataManager.canAddCloudVariable;
+
+        /**
+         * A function that tracks a new cloud variable in the runtime,
+         * updating the cloud variable limit. Calling this function will
+         * emit a cloud data update event if this is the first cloud variable
+         * being added.
+         * @type {function}
+         */
+        this.addCloudVariable = this._initializeAddCloudVariable(newCloudDataManager);
+
+        /**
+         * A function which updates the runtime's cloud variable limit
+         * when removing a cloud variable and emits a cloud update event
+         * if the last of the cloud variables is being removed.
+         * @type {function}
+         */
+        this.removeCloudVariable = this._initializeRemoveCloudVariable(newCloudDataManager);
     }
 
     /**
@@ -329,6 +420,15 @@ class Runtime extends EventEmitter {
      */
     static get BLOCK_GLOW_OFF () {
         return 'BLOCK_GLOW_OFF';
+    }
+
+    /**
+     * Event name for a cloud data update
+     * to this project.
+     * @const {string}
+     */
+    static get HAS_CLOUD_DATA_UPDATE () {
+        return 'HAS_CLOUD_DATA_UPDATE';
     }
 
     /**
@@ -398,6 +498,22 @@ class Runtime extends EventEmitter {
      */
     static get VISUAL_REPORT () {
         return 'VISUAL_REPORT';
+    }
+
+    /**
+     * Event name for project loaded report.
+     * @const {string}
+     */
+    static get PROJECT_LOADED () {
+        return 'PROJECT_LOADED';
+    }
+
+    /**
+     * Event name for report that a change was made that can be saved
+     * @const {string}
+     */
+    static get PROJECT_CHANGED () {
+        return 'PROJECT_CHANGED';
     }
 
     /**
@@ -497,6 +613,30 @@ class Runtime extends EventEmitter {
     }
 
     /**
+     * Event name when the runtime tick loop has been started.
+     * @const {string}
+     */
+    static get RUNTIME_STARTED () {
+        return 'RUNTIME_STARTED';
+    }
+
+    /**
+     * Event name when the runtime dispose has been called.
+     * @const {string}
+     */
+    static get RUNTIME_DISPOSED () {
+        return 'RUNTIME_DISPOSED';
+    }
+
+    /**
+     * Event name for reporting that a block was updated and needs to be rerendered.
+     * @const {string}
+     */
+    static get BLOCKS_NEED_UPDATE () {
+        return 'BLOCKS_NEED_UPDATE';
+    }
+
+    /**
      * How rapidly we try to step threads by default, in ms.
      */
     static get THREAD_STEP_INTERVAL () {
@@ -520,6 +660,29 @@ class Runtime extends EventEmitter {
 
     // -----------------------------------------------------------------------------
     // -----------------------------------------------------------------------------
+
+    // Helper function for initializing the addCloudVariable function
+    _initializeAddCloudVariable (newCloudDataManager) {
+        // The addCloudVariable function
+        return (() => {
+            const hadCloudVarsBefore = this.hasCloudData();
+            newCloudDataManager.addCloudVariable();
+            if (!hadCloudVarsBefore && this.hasCloudData()) {
+                this.emit(Runtime.HAS_CLOUD_DATA_UPDATE, true);
+            }
+        });
+    }
+
+    // Helper function for initializing the removeCloudVariable function
+    _initializeRemoveCloudVariable (newCloudDataManager) {
+        return (() => {
+            const hadCloudVarsBefore = this.hasCloudData();
+            newCloudDataManager.removeCloudVariable();
+            if (hadCloudVarsBefore && !this.hasCloudData()) {
+                this.emit(Runtime.HAS_CLOUD_DATA_UPDATE, false);
+            }
+        });
+    }
 
     /**
      * Register default block packages with this runtime.
@@ -556,6 +719,10 @@ class Runtime extends EventEmitter {
                 }
             }
         }
+    }
+
+    getMonitorState () {
+        return this._monitorState;
     }
 
     /**
@@ -1056,24 +1223,6 @@ class Runtime extends EventEmitter {
             this._hats[opcode].edgeActivated;
     }
 
-    /**
-     * Update an edge-activated hat block value.
-     * @param {!string} blockId ID of hat to store value for.
-     * @param {*} newValue Value to store for edge-activated hat.
-     * @return {*} The old value for the edge-activated hat.
-     */
-    updateEdgeActivatedValue (blockId, newValue) {
-        const oldValue = this._edgeActivatedHatValues[blockId];
-        this._edgeActivatedHatValues[blockId] = newValue;
-        return oldValue;
-    }
-
-    /**
-     * Clear all edge-activaed hat values.
-     */
-    clearEdgeActivatedValues () {
-        this._edgeActivatedHatValues = {};
-    }
 
     /**
      * Attach the audio engine
@@ -1375,14 +1524,39 @@ class Runtime extends EventEmitter {
         return newThreads;
     }
 
+
     /**
      * Dispose all targets. Return to clean state.
      */
     dispose () {
         this.stopAll();
+        // Deleting each target's variable's monitors.
+        this.targets.forEach(target => {
+            if (target.isOriginal) target.deleteMonitors();
+        });
+
         this.targets.map(this.disposeTarget, this);
         this._monitorState = OrderedMap({});
+        this.emit(Runtime.RUNTIME_DISPOSED);
         // @todo clear out extensions? turboMode? etc.
+
+        // *********** Cloud *******************
+
+        // If the runtime currently has cloud data,
+        // emit a has cloud data update event resetting
+        // it to false
+        if (this.hasCloudData()) {
+            this.emit(Runtime.HAS_CLOUD_DATA_UPDATE, false);
+        }
+
+        this.ioDevices.cloud.clear();
+
+        // Reset runtime cloud data info
+        const newCloudDataManager = cloudDataManager();
+        this.hasCloudData = newCloudDataManager.hasCloudVariables;
+        this.canAddCloudVariable = newCloudDataManager.canAddCloudVariable;
+        this.addCloudVariable = this._initializeAddCloudVariable(newCloudDataManager);
+        this.removeCloudVariable = this._initializeRemoveCloudVariable(newCloudDataManager);
     }
 
     /**
@@ -1488,7 +1662,7 @@ class Runtime extends EventEmitter {
         this.stopAll();
         this.emit(Runtime.PROJECT_START);
         this.ioDevices.clock.resetProjectTimer();
-        this.clearEdgeActivatedValues();
+        this.targets.forEach(target => target.clearEdgeActivatedValues());
         // Inform all targets of the green flag.
         for (let i = 0; i < this.targets.length; i++) {
             this.targets[i].onGreenFlag();
@@ -1560,6 +1734,9 @@ class Runtime extends EventEmitter {
         this._emitProjectRunStatus(
             this.threads.length + doneThreads.length -
                 this._getMonitorThreadCount([...this.threads, ...doneThreads]));
+        // Store threads that completed this iteration for testing and other
+        // internal purposes.
+        this._lastStepDoneThreads = doneThreads;
         if (this.renderer) {
             // @todo: Only render when this.redrawRequested or clones rendered.
             if (this.profiler !== null) {
@@ -1620,7 +1797,6 @@ class Runtime extends EventEmitter {
         // Script glows must be cleared.
         this._scriptGlowsPreviousFrame = [];
         this._updateGlows();
-        this.requestTargetsUpdate(editingTarget);
     }
 
     /**
@@ -1631,6 +1807,7 @@ class Runtime extends EventEmitter {
         this.compatibilityMode = compatibilityModeOn;
         if (this._steppingInterval) {
             clearInterval(this._steppingInterval);
+            this._steppingInterval = null;
             this.start();
         }
     }
@@ -1758,9 +1935,10 @@ class Runtime extends EventEmitter {
     /**
      * Emit event to indicate that the block drag has ended with the blocks outside the blocks workspace
      * @param {Array.<object>} blocks The set of blocks dragged to the GUI
+     * @param {string} topBlockId The original id of the top block being dragged
      */
-    emitBlockEndDrag (blocks) {
-        this.emit(Runtime.BLOCK_DRAG_END, blocks);
+    emitBlockEndDrag (blocks, topBlockId) {
+        this.emit(Runtime.BLOCK_DRAG_END, blocks, topBlockId);
     }
 
     /**
@@ -1911,6 +2089,20 @@ class Runtime extends EventEmitter {
     }
 
     /**
+     * Report that the project has loaded in the Virtual Machine.
+     */
+    emitProjectLoaded () {
+        this.emit(Runtime.PROJECT_LOADED);
+    }
+
+    /**
+     * Report that the project has changed in a way that would affect serialization
+     */
+    emitProjectChanged () {
+        this.emit(Runtime.PROJECT_CHANGED);
+    }
+
+    /**
      * Report that a new target has been created, possibly by cloning an existing target.
      * @param {Target} newTarget - the newly created target.
      * @param {Target} [sourceTarget] - the target used as a source for the new clone, if any.
@@ -1977,9 +2169,9 @@ class Runtime extends EventEmitter {
         const block = categoryInfo.blocks.find(b => b.info.opcode === opcode);
         if (!block) return;
 
-        // TODO: should this use some other category? Also, we may want to format the label in a locale-specific way.
+        // TODO: we may want to format the label in a locale-specific way.
         return {
-            category: 'data',
+            category: 'extension', // This assumes that all extensions have the same monitor color.
             label: `${categoryInfo.name}: ${block.info.text}`
         };
     }
@@ -2022,9 +2214,19 @@ class Runtime extends EventEmitter {
     }
 
     /**
+     * Emit an event that indicate that the blocks on the workspace need updating.
+     */
+    requestBlocksUpdate () {
+        this.emit(Runtime.BLOCKS_NEED_UPDATE);
+    }
+
+    /**
      * Set up timers to repeatedly step in a browser.
      */
     start () {
+        // Do not start if we are already running
+        if (this._steppingInterval) return;
+
         let interval = Runtime.THREAD_STEP_INTERVAL;
         if (this.compatibilityMode) {
             interval = Runtime.THREAD_STEP_INTERVAL_COMPATIBILITY;
@@ -2033,6 +2235,7 @@ class Runtime extends EventEmitter {
         this._steppingInterval = setInterval(() => {
             this._step();
         }, interval);
+        this.emit(Runtime.RUNTIME_STARTED);
     }
 
     /**
@@ -2051,6 +2254,15 @@ class Runtime extends EventEmitter {
      */
     disableProfiling () {
         this.profiler = null;
+    }
+
+    /**
+     * Update a millisecond timestamp value that is saved on the Runtime.
+     * This value is helpful in certain instances for compatibility with Scratch 2,
+     * which sometimes uses a `currentMSecs` timestamp value in Interpreter.as
+     */
+    updateCurrentMSecs () {
+        this.currentMSecs = Date.now();
     }
 }
 
