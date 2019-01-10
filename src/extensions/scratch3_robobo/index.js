@@ -678,11 +678,11 @@ class Scratch3Robobo {
 
         if (WAIT=='true') {
             return new Promise(resolve => {
-             this.remote.movePanWait(POSITION, SPEED, resolve);
+             this.remote.movePanWait(Number(POSITION), SPEED, resolve);
             });
         }
         else{
-            this.remote.movePan(POSITION, SPEED);
+            this.remote.movePan(Number(POSITION), SPEED);
         }
     }
 
