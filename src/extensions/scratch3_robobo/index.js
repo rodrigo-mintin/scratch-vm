@@ -512,19 +512,20 @@ class Scratch3Robobo {
                     text: 'When a QR code disappears',
                     blockType: BlockType.HAT,                   
                 },
+/*                  
                 {
                     opcode: 'openMonitor',
                     text: 'Open the Robobo Monitor',
                     blockType: BlockType.COMMAND,
-/*                    
+                  
                     arguments: {
                         IP: {
                             type: ArgumentType.STRING,
                             defaultValue: '192.168.0.39'
                         }
                     }
-*/                    
                 },                
+*/                    
             ],
             menus: {
                 // Required: an identifier for this menu, unique within this extension.
