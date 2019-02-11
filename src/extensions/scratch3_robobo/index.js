@@ -208,7 +208,7 @@ class Scratch3Robobo {
                     arguments: {
                         WHEEL: {
                             type: ArgumentType.STRING,
-                            defaultValue: 'R',
+                            defaultValue: 'right',
                             menu: 'wheelmenu',
                         },
                         TIME: {
@@ -230,7 +230,7 @@ class Scratch3Robobo {
                     arguments: {
                         WHEEL: {
                             type: ArgumentType.STRING,
-                            defaultValue: 'R',
+                            defaultValue: 'right',
                             menu: 'wheelmenu',
                         },
                         
@@ -274,7 +274,6 @@ class Scratch3Robobo {
                         
                     }
                 },
-
                 {
                     opcode: 'readFaceSensor',
                     text: 'Read  face sensor [TYPE] axis',
@@ -457,16 +456,19 @@ class Scratch3Robobo {
                     text: 'When clap is detected',
                     blockType: BlockType.HAT,                   
                 },
+/*                
                 {
                     opcode: 'onTalkEnded',
                     text: 'When speech ends',
                     blockType: BlockType.HAT,                   
                 },
+*/                
                 {
                     opcode: 'onBlobDetected',
                     text: 'When a color blob is detected',
                     blockType: BlockType.HAT,                   
                 },
+/*                
                 {
                     opcode: 'onLowBaseBattDetected',
                     text: 'When low base battery leve is detected',
@@ -477,6 +479,7 @@ class Scratch3Robobo {
                     text: 'When low phone battery leve is detected',
                     blockType: BlockType.HAT,                   
                 },
+*/                
                 {
                     opcode: 'onLostFaceDetected',
                     text: 'When a face is lost',
@@ -545,7 +548,7 @@ class Scratch3Robobo {
                     'moan','purr',"angry","approve","disapprove","discomfort","doubtful","laugh","likes","mumble","ouch","thinking"
                 ],
                 wheelmenu: [
-                    'R','L'
+                    'right','left'
                 ],
                 irmenu:[
                     'Front-C','Front-L','Front-LL','Front-R','Front-RR','Back-C','Back-L','Back-R'
@@ -782,7 +785,6 @@ class Scratch3Robobo {
      */
     readWheelPosition(args, util) {
         const {WHEEL} = args;
-
         return this.remote.getWheel(WHEEL,'position');
     }
 
@@ -829,8 +831,8 @@ class Scratch3Robobo {
      * @returns {integer} the battery level of the base or the smartphone
      */
     readBatteryLevel(args, util) {
-        const {DEVICE} = args;
-        if (DEVICE == 'base'){
+        const {BATTERY} = args;
+        if (BATTERY == 'base'){
             return this.remote.checkBatt();
         }else{
             return this.remote.checkOboBatt();
