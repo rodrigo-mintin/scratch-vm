@@ -80,6 +80,26 @@ class Scratch3Robobo {
                     }
                 },
                 {
+                    opcode: 'moveWheelsByDegrees',
+                    text: 'Move wheels [WHEELS] with speed [SPEED] by [DEGREES] degrees',
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        WHEELS: {
+                            type: ArgumentType.STRING,
+                            menu:'wheeldegreesmenu',
+                            defaultValue: 'both'
+                        },
+                        SPEED: {
+                            type: ArgumentType.STRING,
+                            defaultValue: '10'
+                        },
+                        DEGREES: {
+                            type: ArgumentType.STRING,
+                            defaultValue: '180'
+                        }
+                    }
+                },                
+                {
                     opcode: 'movePanTo',
                     text: 'Move pan to position [POSITION] with speed [SPEED] and wait [WAIT]',
                     blockType: BlockType.COMMAND,
@@ -236,6 +256,12 @@ class Scratch3Robobo {
                         
                     }
                 },
+                {
+                    opcode: 'resetWheelEncoders',
+                    text: 'Reset wheel encoders',
+                    blockType: BlockType.COMMAND,
+                    
+                },                
                 {
                     opcode: 'readPanPosition',
                     text: 'Read pan position',
@@ -452,6 +478,12 @@ class Scratch3Robobo {
                    
                 },
                 {
+                    opcode: 'readQR',
+                    text: 'Read QR',
+                    blockType: BlockType.REPORTER,
+                   
+                },                
+                {
                     opcode: 'onClapDetected',
                     text: 'When clap is detected',
                     blockType: BlockType.HAT,                   
@@ -496,6 +528,11 @@ class Scratch3Robobo {
                     blockType: BlockType.HAT,                   
                 },
                 {
+                    opcode: 'onFlingDetected',
+                    text: 'When a fling is detected',
+                    blockType: BlockType.HAT,                   
+                },                
+                {
                     opcode: 'onNoteDetected',
                     text: 'When a note is detected',
                     blockType: BlockType.HAT,                   
@@ -514,21 +551,7 @@ class Scratch3Robobo {
                     opcode: 'onQrDisappear',
                     text: 'When a QR code disappears',
                     blockType: BlockType.HAT,                   
-                },
-/*                  
-                {
-                    opcode: 'openMonitor',
-                    text: 'Open the Robobo Monitor',
-                    blockType: BlockType.COMMAND,
-                  
-                    arguments: {
-                        IP: {
-                            type: ArgumentType.STRING,
-                            defaultValue: '192.168.0.39'
-                        }
-                    }
                 },                
-*/                    
             ],
             menus: {
                 // Required: an identifier for this menu, unique within this extension.
@@ -550,6 +573,9 @@ class Scratch3Robobo {
                 wheelmenu: [
                     'right','left'
                 ],
+                wheeldegreesmenu: [
+                    'both','left','right'
+                ],                
                 irmenu:[
                     'Front-C','Front-L','Front-LL','Front-R','Front-RR','Back-C','Back-L','Back-R'
                 ],
@@ -574,9 +600,6 @@ class Scratch3Robobo {
                 orientationmenu: [
                     'yaw','pitch','roll'
                 ]
-                
-    
-                
             },
         };
     }
@@ -608,6 +631,7 @@ class Scratch3Robobo {
             this.remote.registerCallback('onFall',()=>{this.fallDetected = true;});
             this.remote.registerCallback('onGap',()=>{this.gapDetected = true;});
             this.remote.registerCallback('onNewTap',()=>{this.tapDetected = true;});
+            this.remote.registerCallback('onNewFling',()=>{this.flingDetected = true;});
             this.remote.registerCallback('onError',()=>{});
             this.remote.registerCallback('onPhrase',()=>{});
             this.remote.registerCallback('onNewNote',()=>{this.noteDetected = true;});
@@ -671,6 +695,27 @@ class Scratch3Robobo {
 
         }
     }
+  
+    /** Moves the wheels of the robot by some degress at the specified speed.
+     * This functions is blocking, it doesn't returns the control until the movement
+     * is finished.
+     * 
+     * @param {string} wheel - Wheels to move [left | right | both]
+     * @param {string} speed  - Speed factor [-100..100]
+     * @param {string} degrees - Degress to move the wheel
+     * 
+     */
+    moveWheelsByDegrees(args, util) {
+        const {WHEELS, SPEED, DEGREES} = args;
+        return new Promise(resolve => { 
+            console.log('antes de this.remote.moveWheelsByDegree');
+            console.log(WHEELS);
+            console.log(SPEED);
+            console.log(DEGREES);
+            this.remote.moveWheelsByDegree(WHEELS, DEGREES, SPEED ,resolve);    
+            unlock = false;
+        })
+    }    
 
     /** Moves the PAN of the base to the specified position at the specified speed
      * 
@@ -798,6 +843,15 @@ class Scratch3Robobo {
 
         return this.remote.getWheel(WHEEL,'speed');
     }
+
+    
+    /**
+     * Resets the encoders of the wheels
+     */
+    resetWheelEncoders(args, util) {
+        this.remote.resetEncoders();
+    }
+    
 
     /** Returns the current position of the PAN
      * 
@@ -1044,6 +1098,16 @@ class Scratch3Robobo {
         return this.remote.getBrightness();
     }
 
+
+    /** Reads the last detected qr
+     *
+     * @returns The QR id
+     * @memberof Robobo
+     */
+    readQR() {
+        return this.remote.getQRId()        
+    }
+
     onClapDetected(){
         if(this.clapDetected){
             this.clapDetected = false;
@@ -1104,6 +1168,7 @@ class Scratch3Robobo {
             return false;
         }
     }
+
     onTapDetected(){
         if(this.tapDetected){
             this.tapDetected = false;
@@ -1112,6 +1177,16 @@ class Scratch3Robobo {
             return false;
         }
     }
+
+    onFlingDetected(){
+        if(this.flingDetected){
+            this.flingDetected = false;
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     onNoteDetected(){
         if(this.noteDetected){
             this.noteDetected = false;
@@ -1143,12 +1218,6 @@ class Scratch3Robobo {
         }else{
             return false;
         }
-    }
-
-    openMonitor(){    
-        console.log('IP: '+this.ip);
-        var win = window.open('http://monitor.theroboboproject.com/testing/robobo-monitor.html?ip='+this.ip, '_blank');
-        win.focus();            
     }
     
 

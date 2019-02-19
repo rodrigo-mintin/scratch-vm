@@ -359,8 +359,7 @@ Remote.prototype = {
     }else{
       console.warn('Robobo Warning: Ignored moveWheelsByDegree command. Maybe the client is sending messages too fast?');
       callback();
-    }
-    
+    }    
     //ENDOF moveWheelsByDegree
   },
 
