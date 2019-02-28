@@ -479,9 +479,16 @@ class Scratch3Robobo {
                 },
                 {
                     opcode: 'readQR',
-                    text: 'Read QR',
+                    text: 'Read  QR [TYPE]',
                     blockType: BlockType.REPORTER,
-                   
+                    arguments: {
+                        TYPE: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'id',
+                            menu: 'qrmenu',
+                        },
+                        
+                    }
                 },                
                 {
                     opcode: 'onClapDetected',
@@ -599,6 +606,9 @@ class Scratch3Robobo {
                 ],
                 orientationmenu: [
                     'yaw','pitch','roll'
+                ],
+                qrmenu: [
+                    'id','x','y','distance'
                 ]
             },
         };
@@ -1104,8 +1114,21 @@ class Scratch3Robobo {
      * @returns The QR id
      * @memberof Robobo
      */
-    readQR() {
-        return this.remote.getQRId()        
+    readQR(args, util) {
+        const {TYPE} = args;        
+        switch(TYPE) {
+            case "id":
+                return this.remote.getQRId();                  
+            case "x":
+                return this.remote.getQRCoord('x');
+            case "y":
+                return this.remote.getQRCoord('y');
+            case "distance":
+                return this.remote.getQRDist();
+            default:
+                return this.remote.getQRId();                  
+          }
+          
     }
 
     onClapDetected(){
