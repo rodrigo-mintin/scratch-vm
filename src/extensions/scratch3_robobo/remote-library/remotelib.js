@@ -967,11 +967,17 @@ Remote.prototype = {
     return this.statusmap.get("blobSize"+color);
   },
 
-
   /** Returns the estimated distance to last detected face */
   getFaceDist : function () {
     return this.statusmap.get("facedist");
   },//ENDOF getFaceDist
+
+
+  /** Returns the size (area) of the face seen by Robobo */
+  getFaceSize : function () {
+    return this.statusmap.get("facesize");
+  },//ENDOF getFaceDist
+
 
   getQRCoord(axis){
     if (axis=="x") {
@@ -1088,7 +1094,8 @@ Remote.prototype = {
     //face sensor
     this.statusmap.set("facex",0);
     this.statusmap.set("facey",0);
-    this.statusmap.set("facedist","far");
+    this.statusmap.set("facedist","none");
+    this.statusmap.set("facesize",0);
   },
 
   resetFlingSensor : function() {
@@ -1276,13 +1283,16 @@ Remote.prototype = {
         this.callCallback("onLostFace");
         this.lostFace = true;        
         this.statusmap.set("facedist","none");
+        this.statusmap.set("facesize",0);
         
       }else{
         if (this.lostFace){
           this.callCallback("onNewFace");
-          this.lostFace = false;        
-          
+          this.lostFace = false;                  
         }
+        
+        this.statusmap.set("facesize",parseInt(msg.value["distance"]));
+
         if (parseInt(msg.value["distance"])>45){
           this.statusmap.set("facedist","close");
         }else if (parseInt(msg.value["distance"])<25){
@@ -1298,6 +1308,7 @@ Remote.prototype = {
     else if (msg.name == "NEWFACE") {
       this.statusmap.set("facex",parseInt(msg.value["coordx"]));
       this.statusmap.set("facey",parseInt(msg.value["coordy"]));
+      this.statusmap.set("facesize",parseInt(msg.value["distance"]));
 
       if (parseInt(msg.value["distance"])>45){
         this.statusmap.set("facedist","close");

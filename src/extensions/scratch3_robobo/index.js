@@ -2,15 +2,20 @@
 const BlockType = require('../../extension-support/block-type');
 const ArgumentType = require('../../extension-support/argument-type');
 const Remote = require('./remote-library/remotelib');
+const Runtime = require('../../engine/runtime');
+
+/** para prueba */
+const MathUtil = require('../../util/math-util');
 
 class Scratch3Robobo {
     constructor (runtime) {
         this.runtime = runtime;
-        this.onClap = false;        
+        this.onClap = false;     
+        this.extensionId = 'robobo';                         
     }
     getInfo () {
         return {
-            id: 'robobo', // Replace with the ID you specified in scratch-gui
+            id: this.extensionId, // 'robobo', // Replace with the ID you specified in scratch-gui
             name: 'Robobo',
             blocks: [
                 {
@@ -32,6 +37,7 @@ class Scratch3Robobo {
                        
                     }
                 },
+                '---',
                 {
                     opcode: 'stopMotors',
                     text: 'Stop all motors',
@@ -98,7 +104,7 @@ class Scratch3Robobo {
                             defaultValue: '180'
                         }
                     }
-                },                
+                },                                                              
                 {
                     opcode: 'movePanTo',
                     text: 'Move pan to position [POSITION] with speed [SPEED] and wait [WAIT]',
@@ -138,7 +144,7 @@ class Scratch3Robobo {
                             defaultValue: 'true'
                         }
                     }
-                },
+                },                
                 {
                     opcode: 'setLedColorTo',
                     text: 'Set led [LED] to color [COLOR]',
@@ -156,6 +162,73 @@ class Scratch3Robobo {
                         }
                     }
                 },
+                '---',               
+                {
+                    opcode: 'readWheelPosition',
+                    text: 'Read [WHEEL] wheel position',
+                    blockType: BlockType.REPORTER,
+                    arguments: {
+                        WHEEL: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'right',
+                            menu: 'wheelmenu',
+                        },
+                        TIME: {
+                            type: ArgumentType.STRING,
+                            defaultValue: '1'
+                        },
+                        
+                        WAIT: {
+                            type: ArgumentType.STRING,
+                            menu:'booleanmenu',
+                            defaultValue: 'true'
+                        }
+                    }
+                },
+                {
+                    opcode: 'readWheelSpeed',
+                    text: 'Read [WHEEL] wheel speed',
+                    blockType: BlockType.REPORTER,
+                    arguments: {
+                        WHEEL: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'right',
+                            menu: 'wheelmenu',
+                        },
+                        
+                    }
+                },   
+                {
+                    opcode: 'resetWheelEncoders',
+                    text: 'Reset wheel encoders',
+                    blockType: BlockType.COMMAND,
+                    
+                },                              
+                {
+                    opcode: 'readPanPosition',
+                    text: 'Read pan position',
+                    blockType: BlockType.REPORTER,
+                    
+                },
+                {
+                    opcode: 'readTiltPosition',
+                    text: 'Read tilt position',
+                    blockType: BlockType.REPORTER,
+                    
+                },
+                {
+                    opcode: 'readIRSensor',
+                    text: 'Read ir [SENSOR] sensor value',
+                    blockType: BlockType.REPORTER,
+                    arguments: {
+                        SENSOR: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'Front-C',
+                            menu: 'irmenu',
+                        },                        
+                    }
+                },
+                '---',                
                 {
                     opcode: 'setEmotionTo',
                     text: 'Set Robobo emotion to [EMOTION]',
@@ -195,9 +268,7 @@ class Scratch3Robobo {
                             type: ArgumentType.STRING,
                             defaultValue: 'purr',
                             menu:'soundmenu',
-                        },
-                        
-                       
+                        },                        
                     }
                 },
                 {
@@ -206,7 +277,7 @@ class Scratch3Robobo {
                     blockType: BlockType.COMMAND,
                     arguments: {
                         NOTE: {
-                            type: ArgumentType.STRING,
+                            type: ArgumentType.NOTE,
                             defaultValue: '40'
                         },
                         TIME: {
@@ -221,72 +292,7 @@ class Scratch3Robobo {
                         }
                     }
                 },
-                {
-                    opcode: 'readWheelPosition',
-                    text: 'Read [WHEEL] wheel position',
-                    blockType: BlockType.REPORTER,
-                    arguments: {
-                        WHEEL: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'right',
-                            menu: 'wheelmenu',
-                        },
-                        TIME: {
-                            type: ArgumentType.STRING,
-                            defaultValue: '1'
-                        },
-                        
-                        WAIT: {
-                            type: ArgumentType.STRING,
-                            menu:'booleanmenu',
-                            defaultValue: 'true'
-                        }
-                    }
-                },
-                {
-                    opcode: 'readWheelSpeed',
-                    text: 'Read [WHEEL] wheel speed',
-                    blockType: BlockType.REPORTER,
-                    arguments: {
-                        WHEEL: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'right',
-                            menu: 'wheelmenu',
-                        },
-                        
-                    }
-                },
-                {
-                    opcode: 'resetWheelEncoders',
-                    text: 'Reset wheel encoders',
-                    blockType: BlockType.COMMAND,
-                    
-                },                
-                {
-                    opcode: 'readPanPosition',
-                    text: 'Read pan position',
-                    blockType: BlockType.REPORTER,
-                    
-                },
-                {
-                    opcode: 'readTiltPosition',
-                    text: 'Read tilt position',
-                    blockType: BlockType.REPORTER,
-                    
-                },
-                {
-                    opcode: 'readIRSensor',
-                    text: 'Read ir [SENSOR] sensor value',
-                    blockType: BlockType.REPORTER,
-                    arguments: {
-                        SENSOR: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'Front-C',
-                            menu: 'irmenu',
-                        },
-                        
-                    }
-                },
+                '---',
                 {
                     opcode: 'readBatteryLevel',
                     text: 'Read  [BATTERY] battery level',
@@ -302,13 +308,13 @@ class Scratch3Robobo {
                 },
                 {
                     opcode: 'readFaceSensor',
-                    text: 'Read  face sensor [TYPE] axis',
+                    text: 'Read  face sensor [TYPE]',
                     blockType: BlockType.REPORTER,
                     arguments: {
                         TYPE: {
                             type: ArgumentType.STRING,
                             defaultValue: 'x',
-                            menu: 'visionmenu',
+                            menu: 'facemenu',
                         },
                         
                     }
@@ -319,20 +325,16 @@ class Scratch3Robobo {
                     blockType: BlockType.COMMAND,
                     
                 },
-
                 {
                     opcode: 'readClapCounter',
                     text: 'Read  clap counter',
-                    blockType: BlockType.REPORTER,
-                   
+                    blockType: BlockType.REPORTER,                   
                 },
                 {
                     opcode: 'resetClapCounter',
                     text: 'Reset clap counter',
-                    blockType: BlockType.COMMAND,
-                    
+                    blockType: BlockType.COMMAND,                    
                 },
-
                 {
                     opcode: 'readLastNote',
                     text: 'Read  last note [TYPE] ',
@@ -342,8 +344,7 @@ class Scratch3Robobo {
                             type: ArgumentType.STRING,
                             defaultValue: 'note',
                             menu: 'notemenu',
-                        },
-                        
+                        },                        
                     }
                 },
                 {
@@ -355,7 +356,7 @@ class Scratch3Robobo {
 
                 {
                     opcode: 'readColorBlob',
-                    text: 'Read  [COLOR] blob [TYPE] axis',
+                    text: 'Read  [COLOR] blob [TYPE]',
                     blockType: BlockType.REPORTER,
                     arguments: {
                         
@@ -367,7 +368,7 @@ class Scratch3Robobo {
                         TYPE: {
                             type: ArgumentType.STRING,
                             defaultValue: 'x',
-                            menu: 'visionmenu',
+                            menu: 'blobmenu',
                         },
                         
                     }
@@ -403,9 +404,7 @@ class Scratch3Robobo {
                             type: ArgumentType.STRING,
                             defaultValue: 'false',
                             menu: 'booleanmenu',
-                        },
-                        
-                        
+                        },                        
                     }
                 },
                 {
@@ -431,8 +430,7 @@ class Scratch3Robobo {
                             type: ArgumentType.STRING,
                             defaultValue: 'x',
                             menu: 'tapmenu',
-                        },
-                        
+                        },                        
                     }
                 },
                 {
@@ -446,23 +444,18 @@ class Scratch3Robobo {
                     text: 'Read  acceleration on [TYPE] axis',
                     blockType: BlockType.REPORTER,
                     arguments: {
-                        
-                        
                         TYPE: {
                             type: ArgumentType.STRING,
                             defaultValue: 'x',
                             menu: 'accelerationmenu',
-                        },
-                        
+                        },                        
                     }
                 },
                 {
                     opcode: 'readOrientationSensor',
                     text: 'Read  orientation on [TYPE] axis',
                     blockType: BlockType.REPORTER,
-                    arguments: {
-                        
-                        
+                    arguments: {                        
                         TYPE: {
                             type: ArgumentType.STRING,
                             defaultValue: 'yaw',
@@ -489,7 +482,8 @@ class Scratch3Robobo {
                         },
                         
                     }
-                },                
+                },     
+                '---',           
                 {
                     opcode: 'onClapDetected',
                     text: 'When clap is detected',
@@ -589,8 +583,11 @@ class Scratch3Robobo {
                 batterymenu: [
                     'base','phone'
                 ],
-                visionmenu: [
-                    'x','y','distance'
+                facemenu: [
+                    'x','y','area','range'
+                ],                
+                blobmenu: [
+                    'x','y','area'
                 ],
                 notemenu:[
                     'note','duration'
@@ -608,7 +605,7 @@ class Scratch3Robobo {
                     'yaw','pitch','roll'
                 ],
                 qrmenu: [
-                    'id','x','y','distance'
+                    'id','x','y','area'
                 ]
             },
         };
@@ -618,8 +615,7 @@ class Scratch3Robobo {
         return Math.pow(BASE, POWER);
     }
 
-    connect (args, util){
-        
+    connect (args, util){        
         const {IP} = args;
 
         this.remote = new Remote(IP.trim() ,'');
@@ -627,7 +623,6 @@ class Scratch3Robobo {
         
         return new Promise(resolve => {
             this.remote.registerCallback('onConnectionChanges', arg => {
-                console.log('Connection State: '+arg);
                 this.connectionState = arg;
                 resolve();
             }) 
@@ -648,21 +643,27 @@ class Scratch3Robobo {
             this.remote.registerCallback('onQR',()=>{this.qrDetected = true;});
             this.remote.registerCallback('onQRAppear',()=>{this.qrAppear = true;});
             this.remote.registerCallback('onQRDisappear',()=>{this.qrDisappear = true;});
-            this.remote.connect();
-            
+            this.remote.connect();    
+
+            //Subscribes to "PROJECT_STOP_ALL" event (stop button on gui)
+            // When stop button it's pressed, the wheel motors will be stopped      
+            this.runtime.on('PROJECT_STOP_ALL', this.stopMotors.bind(this));                       
         });
     }
  
     disconnect (args, util){
         return new Promise(resolve => {
             this.remote.registerCallback('onConnectionChanges', arg => {
-                console.log('Connection State: '+arg);
                 this.connectionState = arg; 
                 resolve();
             })
             this.remote.closeConnection();
 
         });
+    }
+
+    isConnected() {
+        return this.remote.isConnected();
     }
 
     /** Stops the movement of the wheels
@@ -692,6 +693,15 @@ class Scratch3Robobo {
      */
     moveWheelsByTime(args, util) {
         const {SPEEDR, SPEEDL, TIME, WAIT} = args;
+        
+        /** prueba sobre target --> sprite seleccionado */
+        const steps = 20;
+        const radians = MathUtil.degToRad(90 - util.target.direction);
+        const dx = steps * Math.cos(radians);
+        const dy = steps * Math.sin(radians);        
+        util.target.setXY(util.target.x + dx, util.target.y + dy);
+        /** */
+
         if (WAIT=='true') {
             return new Promise(resolve => {
 
@@ -718,10 +728,6 @@ class Scratch3Robobo {
     moveWheelsByDegrees(args, util) {
         const {WHEELS, SPEED, DEGREES} = args;
         return new Promise(resolve => { 
-            console.log('antes de this.remote.moveWheelsByDegree');
-            console.log(WHEELS);
-            console.log(SPEED);
-            console.log(DEGREES);
             this.remote.moveWheelsByDegree(WHEELS, DEGREES, SPEED ,resolve);    
             unlock = false;
         })
@@ -730,7 +736,7 @@ class Scratch3Robobo {
     /** Moves the PAN of the base to the specified position at the specified speed
      * 
      * @param {integer} position Position in degress of the PAN [-160..160]
-     * @param {integer} speed  Speed factor [-40..40]
+     * @param {integer} speed  Speed factor [0..100]
      */
     movePanTo(args, util) {
         const {POSITION, SPEED, WAIT} = args;
@@ -749,7 +755,7 @@ class Scratch3Robobo {
      * waits until the movement has finished.
      * 
      * @param {integer} position Position in degress of the TILT [5..105]
-     * @param {integer} speed  Speed factor [-10..10]
+     * @param {integer} speed  Speed factor [0..100]
      */
     moveTiltTo(args, util) {
         const {POSITION, SPEED, WAIT} = args;
@@ -916,8 +922,10 @@ class Scratch3Robobo {
     readFaceSensor(args, util) {
         const {TYPE} = args;
 
-        if (TYPE == 'distance'){
+        if (TYPE == 'range'){
             return this.remote.getFaceDist();
+        }else if (TYPE == 'area'){
+            return this.remote.getFaceSize();
         }else if (TYPE == 'x'){
             return this.remote.getFaceCoord('x');
         }else{
