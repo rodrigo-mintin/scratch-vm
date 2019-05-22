@@ -140,6 +140,20 @@ class VirtualMachine extends EventEmitter {
             this.emit(Runtime.HAS_CLOUD_DATA_UPDATE, hasCloudData);
         });
 
+        /**
+         * Robobo events
+         */
+        
+        this.runtime.on(Runtime.ROBOBO_CONNECT_BUTTON_CLICK, () => {
+            this.emit(Runtime.ROBOBO_CONNECT_BUTTON_CLICK);
+        });        
+
+        this.runtime.on(Runtime.ROBOBO_DISCONNECT_BUTTON_CLICK, () => {
+            this.emit(Runtime.ROBOBO_DISCONNECT_BUTTON_CLICK);
+        });  
+
+        /* end Robobo events*/ 
+
         this.extensionManager = new ExtensionManager(this.runtime);
 
         this.blockListener = this.blockListener.bind(this);
@@ -1472,6 +1486,25 @@ class VirtualMachine extends EventEmitter {
         }
         return null;
     }
+
+
+    /**
+     * The Robobo connection button was clicked. This method is called from GUI.
+     * Calls runtime that will trigger an event.
+     */
+    roboboConnectButtonClick(ip){        
+        this.runtime.roboboConnectButtonClick(ip);
+        
+    }
+
+    /**
+     * The Robobo discconection button was clicked. This method is called from GUI.
+     * Calls runtime that will trigger an event.
+     */    
+    roboboDisconnectButtonClick(ip){
+        this.runtime.roboboDisconnectButtonClick(ip);
+    }    
+
 }
 
 module.exports = VirtualMachine;

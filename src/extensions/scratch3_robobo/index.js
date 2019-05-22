@@ -11,39 +11,32 @@ class Scratch3Robobo {
     constructor (runtime) {
         this.runtime = runtime;
         this.onClap = false;     
-        this.extensionId = 'robobo';                         
+        this.extensionId = 'robobo';  // The ID you specified in scratch-gui  
+        this.runtime.on('ROBOBO_CONNECT_BUTTON_CLICK', this.connectButtonClick.bind(this));     
+        this.runtime.on('ROBOBO_DISCONNECT_BUTTON_CLICK', this.disconnect.bind(this));     
     }
     getInfo () {
         return {
-            id: this.extensionId, // 'robobo', // Replace with the ID you specified in scratch-gui
+            id: this.extensionId, 
             name: 'Robobo',
-            blocks: [
+            blocks: [    
                 {
-                    opcode: 'connect',
-                    text: 'Connect to robobo with ip [IP]',
-                    blockType: BlockType.COMMAND,
+                    opcode: 'baseActuationTitle',
+                    text: 'BASE ACTUATION BLOCKS',
+                    blockType: BlockType.HAT,        
                     arguments: {
-                        IP: {
-                            type: ArgumentType.STRING,
-                            defaultValue: '192.168.0.39'
-                        }
                     }
-                },
-                {
-                    opcode: 'disconnect',
-                    text: 'Disconnect Robobo',
-                    blockType: BlockType.COMMAND,
-                    arguments: {
-                       
-                    }
-                },
-                '---',
+                },                         
                 {
                     opcode: 'stopMotors',
-                    text: 'Stop all motors',
+                    text: 'Stop [MOTOR] motors',
                     blockType: BlockType.COMMAND,
                     arguments: {
-                       
+                        MOTOR: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'all',
+                            menu: 'stopmotorsmenu',
+                        },                        
                     }
                 },
                 {
@@ -162,7 +155,14 @@ class Scratch3Robobo {
                         }
                     }
                 },
-                '---',               
+                '---',      
+                {
+                    opcode: 'baseActuationTitle',
+                    text: 'BASE SENSING BLOCKS',
+                    blockType: BlockType.HAT,        
+                    arguments: {
+                    }
+                },                           
                 {
                     opcode: 'readWheelPosition',
                     text: 'Read [WHEEL] wheel position',
@@ -228,7 +228,14 @@ class Scratch3Robobo {
                         },                        
                     }
                 },
-                '---',                
+                '---',   
+                {
+                    opcode: 'baseActuationTitle',
+                    text: 'SMARTPHONE ACTUATION BLOCKS',
+                    blockType: BlockType.HAT,        
+                    arguments: {
+                    }
+                },                                
                 {
                     opcode: 'setEmotionTo',
                     text: 'Set Robobo emotion to [EMOTION]',
@@ -294,6 +301,13 @@ class Scratch3Robobo {
                 },
                 '---',
                 {
+                    opcode: 'baseActuationTitle',
+                    text: 'SMARTPHONE SENSING BLOCKS',
+                    blockType: BlockType.HAT,        
+                    arguments: {
+                    }
+                },                   
+                {
                     opcode: 'readBatteryLevel',
                     text: 'Read  [BATTERY] battery level',
                     blockType: BlockType.REPORTER,
@@ -315,8 +329,7 @@ class Scratch3Robobo {
                             type: ArgumentType.STRING,
                             defaultValue: 'x',
                             menu: 'facemenu',
-                        },
-                        
+                        },                        
                     }
                 },
                 {
@@ -483,7 +496,6 @@ class Scratch3Robobo {
                         
                     }
                 },     
-                '---',           
                 {
                     opcode: 'onClapDetected',
                     text: 'When clap is detected',
@@ -571,6 +583,9 @@ class Scratch3Robobo {
                 soundmenu: [
                     'moan','purr',"angry","approve","disapprove","discomfort","doubtful","laugh","likes","mumble","ouch","thinking"
                 ],
+                stopmotorsmenu: [
+                    'all','wheels','pan','tilt'
+                ],
                 wheelmenu: [
                     'right','left'
                 ],
@@ -615,11 +630,16 @@ class Scratch3Robobo {
         return Math.pow(BASE, POWER);
     }
 
-    connect (args, util){        
-        const {IP} = args;
+    /**
+     * This method is executed when a connection click event is trigger 
+     */
+    connectButtonClick() {
+        this.connectWithIP(this.runtime.roboboIP);
+    }
 
-        this.remote = new Remote(IP.trim() ,'');
-        this.ip = IP.trim();
+    connectWithIP(ip) {
+        this.ip = ip;
+        this.remote = new Remote(this.ip ,'');
         
         return new Promise(resolve => {
             this.remote.registerCallback('onConnectionChanges', arg => {
@@ -646,11 +666,11 @@ class Scratch3Robobo {
             this.remote.connect();    
 
             //Subscribes to "PROJECT_STOP_ALL" event (stop button on gui)
-            // When stop button it's pressed, the wheel motors will be stopped      
+            // When the stop button is pressed, the Robobo motors will be stopped      
             this.runtime.on('PROJECT_STOP_ALL', this.stopMotors.bind(this));                       
         });
     }
- 
+
     disconnect (args, util){
         return new Promise(resolve => {
             this.remote.registerCallback('onConnectionChanges', arg => {
@@ -658,7 +678,6 @@ class Scratch3Robobo {
                 resolve();
             })
             this.remote.closeConnection();
-
         });
     }
 
@@ -666,10 +685,31 @@ class Scratch3Robobo {
         return this.remote.isConnected();
     }
 
+
+    baseActuationTitle(args,util) {
+
+    }    
+
     /** Stops the movement of the wheels
      */
     stopMotors(args, util) {
-        this.remote.moveWheelsSeparated(0,0,0);
+        const {MOTOR} = args;
+        switch (MOTOR) {           
+            case 'wheels':
+                this.remote.moveWheelsSeparated(0,0,0);
+                break;
+            case 'pan':
+                this.remote.movePan(180, 0);
+                break;
+            case 'tilt':
+                this.remote.moveTilt(75, 0);                
+                break;  
+            default:
+                this.remote.moveWheelsSeparated(0,0,0);
+                this.remote.movePan(180, 0);
+                this.remote.moveTilt(75, 0);                
+                break;                               
+        }
     }
 
     /** Starts moving the wheels of the robot at the specified speed.
@@ -769,6 +809,7 @@ class Scratch3Robobo {
             this.remote.moveTilt(POSITION, SPEED);
         }
     }
+
 
     /** Changes the color of a LED of the base
      * 
@@ -1003,8 +1044,6 @@ class Scratch3Robobo {
         }else{
             return this.remote.getBlobSize(COLOR)
         }
-       
-
     }
      /**
      * Resets the color blob detector
@@ -1066,9 +1105,7 @@ class Scratch3Robobo {
 
         }else{
             return this.remote.getTapZone()
-
         }
-        
     }
 
     /**
@@ -1090,8 +1127,7 @@ class Scratch3Robobo {
     readOrientationSensor(args, util) {
         const {TYPE} = args;
 
-        return this.remote.getOrientation(TYPE)
-        
+        return this.remote.getOrientation(TYPE)        
     }
     /**
      * Reads the acceleration sensor
@@ -1101,11 +1137,10 @@ class Scratch3Robobo {
      */
     readAccelerationSensor(args, util) {
         const {TYPE} = args;
-
         
-        return this.remote.getAcceleration(TYPE)
-        
+        return this.remote.getAcceleration(TYPE)        
     }
+
     /**
      * Reads the brightness detected by the smartphone light sensor
      *

@@ -372,7 +372,11 @@ class Runtime extends EventEmitter {
          * @type {function}
          */
         this.removeCloudVariable = this._initializeRemoveCloudVariable(newCloudDataManager);
-    }
+
+
+        /** Current Robobo IP address */
+        this.roboboIP = undefined;
+    }   
 
     /**
      * Width of the stage, in pixels.
@@ -656,6 +660,21 @@ class Runtime extends EventEmitter {
      */
     static get MAX_CLONES () {
         return 300;
+    }
+
+
+    /**
+     * Event name for reporting that the button to connect Robobo whas clicked.
+     */
+    static get ROBOBO_CONNECT_BUTTON_CLICK() {
+        return 'ROBOBO_CONNECT_BUTTON_CLICK';
+    }
+
+    /**
+     * Event name for reporting that the button to disconnect Robobo whas clicked.
+     */
+    static get ROBOBO_DISCONNECT_BUTTON_CLICK() {
+        return 'ROBOBO_DISCONNECT_BUTTON_CLICK';
     }
 
     // -----------------------------------------------------------------------------
@@ -2264,6 +2283,30 @@ class Runtime extends EventEmitter {
     updateCurrentMSecs () {
         this.currentMSecs = Date.now();
     }
+
+    /** 
+     * Sets the roboboIP value and trigger the connection event. 
+     * The Robobo Extension is subscribed to this event so it will receive the
+     * notification and establish the connection. 
+     * 
+     * @param {string} The robobo IP
+     * 
+    */
+    roboboConnectButtonClick(ip) {
+        this.roboboIP = ip;
+        this.emit(Runtime.ROBOBO_CONNECT_BUTTON_CLICK);
+    }
+
+    /** 
+     * Sets the roboboIP value and trigger the disconnection event. 
+     * The Robobo Extension is subscribed to this event so it will receive the
+     * notification and close the connection.        
+    */    
+    roboboDisconnectButtonClick() {        
+        this.roboboIP = undefined;
+        this.emit(Runtime.ROBOBO_DISCONNECT_BUTTON_CLICK);
+    }    
+
 }
 
 /**
