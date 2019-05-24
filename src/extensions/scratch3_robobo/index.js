@@ -667,7 +667,7 @@ class Scratch3Robobo {
 
             //Subscribes to "PROJECT_STOP_ALL" event (stop button on gui)
             // When the stop button is pressed, the Robobo motors will be stopped      
-            this.runtime.on('PROJECT_STOP_ALL', this.stopMotors.bind(this));                       
+            this.runtime.on('PROJECT_STOP_ALL', this.stopAllMotors.bind(this));                       
         });
     }
 
@@ -690,7 +690,17 @@ class Scratch3Robobo {
 
     }    
 
-    /** Stops the movement of the wheels
+    /**
+     * This method is called when the 'PROJECT_STOP_ALL' event is triggered
+     */
+    stopAllMotors() {
+        this.remote.moveWheelsSeparated(0,0,0);
+        this.remote.moveWheelsSeparated(0,0,0);
+        this.remote.movePan(180, 0);
+        this.remote.moveTilt(75, 0);         
+    }        
+
+    /** Stops the movement of the motors
      */
     stopMotors(args, util) {
         const {MOTOR} = args;
@@ -752,7 +762,6 @@ class Scratch3Robobo {
         }
         else{
             this.remote.moveWheelsSeparated(SPEEDR, SPEEDL, TIME);
-
         }
     }
   
