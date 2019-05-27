@@ -12,7 +12,7 @@ class Scratch3Robobo {
         this.runtime = runtime;
         this.onClap = false;     
         this.extensionId = 'robobo';  // The ID you specified in scratch-gui  
-        this.runtime.on('ROBOBO_CONNECT_BUTTON_CLICK', this.connectButtonClick.bind(this));     
+        this.runtime.on('ROBOBO_CONNECT_BUTTON_CLICK', this.connect.bind(this));     
         this.runtime.on('ROBOBO_DISCONNECT_BUTTON_CLICK', this.disconnect.bind(this));     
     }
     getInfo () {
@@ -620,7 +620,7 @@ class Scratch3Robobo {
                     'yaw','pitch','roll'
                 ],
                 qrmenu: [
-                    'id','x','y','area'
+                    'id','x','y','distance'
                 ]
             },
         };
@@ -633,12 +633,8 @@ class Scratch3Robobo {
     /**
      * This method is executed when a connection click event is trigger 
      */
-    connectButtonClick() {
-        this.connectWithIP(this.runtime.roboboIP);
-    }
-
-    connectWithIP(ip) {
-        this.ip = ip;
+    connect(args, util) {
+        this.ip = this.runtime.roboboIP;
         this.remote = new Remote(this.ip ,'');
         
         return new Promise(resolve => {
