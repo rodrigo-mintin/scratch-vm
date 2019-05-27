@@ -157,7 +157,7 @@ class Scratch3Robobo {
                 },
                 '---',      
                 {
-                    opcode: 'baseActuationTitle',
+                    opcode: 'baseSensingTitle',
                     text: 'BASE SENSING BLOCKS',
                     blockType: BlockType.HAT,        
                     arguments: {
@@ -230,7 +230,7 @@ class Scratch3Robobo {
                 },
                 '---',   
                 {
-                    opcode: 'baseActuationTitle',
+                    opcode: 'smartphoneActuationTitle',
                     text: 'SMARTPHONE ACTUATION BLOCKS',
                     blockType: BlockType.HAT,        
                     arguments: {
@@ -301,7 +301,7 @@ class Scratch3Robobo {
                 },
                 '---',
                 {
-                    opcode: 'baseActuationTitle',
+                    opcode: 'smartphoneActuationTitle',
                     text: 'SMARTPHONE SENSING BLOCKS',
                     blockType: BlockType.HAT,        
                     arguments: {
@@ -683,6 +683,18 @@ class Scratch3Robobo {
 
 
     baseActuationTitle(args,util) {
+
+    }    
+
+    baseSensingTitle(args,util) {
+
+    }    
+
+    smartphoneActuationTitle(args,util) {
+
+    }    
+
+    smartphoneSensingTitle(args,util) {
 
     }    
 
