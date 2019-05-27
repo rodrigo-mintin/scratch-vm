@@ -599,7 +599,7 @@ class Scratch3Robobo {
                     'base','phone'
                 ],
                 facemenu: [
-                    'x','y','area','range'
+                    'x','y','size','distance'
                 ],                
                 blobmenu: [
                     'x','y','area'
@@ -968,9 +968,9 @@ class Scratch3Robobo {
     readFaceSensor(args, util) {
         const {TYPE} = args;
 
-        if (TYPE == 'range'){
+        if (TYPE == 'distance'){
             return this.remote.getFaceDist();
-        }else if (TYPE == 'area'){
+        }else if (TYPE == 'size'){
             return this.remote.getFaceSize();
         }else if (TYPE == 'x'){
             return this.remote.getFaceCoord('x');
