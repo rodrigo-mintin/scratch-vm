@@ -301,7 +301,7 @@ class Scratch3Robobo {
                 },
                 '---',
                 {
-                    opcode: 'smartphoneActuationTitle',
+                    opcode: 'smartphoneSensingTitle',
                     text: 'SMARTPHONE SENSING BLOCKS',
                     blockType: BlockType.HAT,        
                     arguments: {
@@ -434,7 +434,7 @@ class Scratch3Robobo {
                 },
                 {
                     opcode: 'readTapSensor',
-                    text: 'Read  tap on [TYPE] axis',
+                    text: 'Read  tap on [TYPE]',
                     blockType: BlockType.REPORTER,
                     arguments: {
                         
@@ -620,7 +620,7 @@ class Scratch3Robobo {
                     'yaw','pitch','roll'
                 ],
                 qrmenu: [
-                    'id','x','y','distance'
+                    'id','x','y','size'
                 ]
             },
         };
@@ -1183,7 +1183,7 @@ class Scratch3Robobo {
                 return this.remote.getQRCoord('x');
             case "y":
                 return this.remote.getQRCoord('y');
-            case "distance":
+            case "size":
                 return this.remote.getQRDist();
             default:
                 return this.remote.getQRId();                  
