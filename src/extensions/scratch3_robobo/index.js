@@ -640,6 +640,11 @@ class Scratch3Robobo {
         return new Promise(resolve => {
             this.remote.registerCallback('onConnectionChanges', arg => {
                 this.connectionState = arg;
+                console.log('conection changed: ');
+                console.log(arg); 
+                if (arg != 2) {
+                    this.runtime.roboboDisconnectButtonClick();
+                }
                 resolve();
             }) 
             this.remote.registerCallback('talkCallback',()=>{this.talkEnded = true;});

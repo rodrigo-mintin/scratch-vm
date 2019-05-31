@@ -2293,7 +2293,7 @@ class Runtime extends EventEmitter {
      * 
     */
     roboboConnectButtonClick(ip) {
-        this.roboboIP = ip;
+        this.roboboIP = ip.trim();
         this.emit(Runtime.ROBOBO_CONNECT_BUTTON_CLICK);
     }
 
