@@ -152,6 +152,10 @@ class VirtualMachine extends EventEmitter {
             this.emit(Runtime.ROBOBO_DISCONNECT_BUTTON_CLICK);
         });  
 
+        this.runtime.on(Runtime.ROBOBO_CONNECTION_ESTABLISHED, () => {
+            this.emit(Runtime.ROBOBO_CONNECTION_ESTABLISHED);
+        });          
+
         /* end Robobo events*/ 
 
         this.extensionManager = new ExtensionManager(this.runtime);
@@ -1493,8 +1497,7 @@ class VirtualMachine extends EventEmitter {
      * Calls runtime that will trigger an event.
      */
     roboboConnectButtonClick(ip){        
-        this.runtime.roboboConnectButtonClick(ip);
-        
+        this.runtime.roboboConnectButtonClick(ip);        
     }
 
     /**

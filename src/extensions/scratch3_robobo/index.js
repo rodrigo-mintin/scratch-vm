@@ -642,7 +642,9 @@ class Scratch3Robobo {
                 this.connectionState = arg;
                 console.log('conection changed: ');
                 console.log(arg); 
-                if (arg != 2) {
+                if (arg == 2) {
+                    this.runtime.roboboConnectionStablished();                    
+                } else {
                     this.runtime.roboboDisconnectButtonClick();
                 }
                 resolve();

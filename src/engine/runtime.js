@@ -374,8 +374,9 @@ class Runtime extends EventEmitter {
         this.removeCloudVariable = this._initializeRemoveCloudVariable(newCloudDataManager);
 
 
-        /** Current Robobo IP address */
+        /** Current Robobo IP address and connection state*/
         this.roboboIP = undefined;
+        this.roboboConnected = false;
     }   
 
     /**
@@ -676,6 +677,14 @@ class Runtime extends EventEmitter {
     static get ROBOBO_DISCONNECT_BUTTON_CLICK() {
         return 'ROBOBO_DISCONNECT_BUTTON_CLICK';
     }
+
+    /**
+     * Event name for reporting that the button to disconnect Robobo whas clicked.
+     */
+    static get ROBOBO_CONNECTION_ESTABLISHED() {
+        return 'ROBOBO_CONNECTION_ESTABLISHED';
+    }
+
 
     // -----------------------------------------------------------------------------
     // -----------------------------------------------------------------------------
@@ -2304,8 +2313,14 @@ class Runtime extends EventEmitter {
     */    
     roboboDisconnectButtonClick() {        
         this.roboboIP = undefined;
+        this.roboboConnected = false;
         this.emit(Runtime.ROBOBO_DISCONNECT_BUTTON_CLICK);
     }    
+
+    roboboConnectionStablished(){
+        this.roboboConnected = true;
+        this.emit(Runtime.ROBOBO_CONNECTION_ESTABLISHED);
+    }
 
 }
 
