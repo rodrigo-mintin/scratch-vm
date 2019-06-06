@@ -495,7 +495,13 @@ class Scratch3Robobo {
                         },
                         
                     }
-                },     
+                },  
+                {
+                    opcode: 'resetQR',
+                    text: 'Reset QR',
+                    blockType: BlockType.COMMAND,
+                    
+                },                   
                 {
                     opcode: 'onClapDetected',
                     text: 'When clap is detected',
@@ -1097,7 +1103,7 @@ class Scratch3Robobo {
     /**
      * Reads the data of the fling sensor
      *
-     * @returns Lasta angle detected on the sensor
+     * @returns Last angle detected on the sensor
      * @memberof Robobo
      */
     readFlingSensor(args, util) {
@@ -1194,9 +1200,17 @@ class Scratch3Robobo {
                 return this.remote.getQRDist();
             default:
                 return this.remote.getQRId();                  
-          }
-          
+          }          
     }
+
+     /**
+     * Resets the color blob detector
+     *
+     * @memberof Robobo
+     */
+    resetQR() {
+        this.remote.resetQRSensor();
+    }    
 
     onClapDetected(){
         if(this.clapDetected){
