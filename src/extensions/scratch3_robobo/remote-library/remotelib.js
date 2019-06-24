@@ -1596,6 +1596,18 @@ Remote.prototype = {
       
       //console.log("LostQR");
 
+      this.statusmap.set("qrx",0);
+      this.statusmap.set("qry",0);
+      this.statusmap.set("qrdist",0);
+      this.statusmap.set("p1x",0);
+      this.statusmap.set("p1y",0);
+      this.statusmap.set("p2x",0);
+      this.statusmap.set("p2y",0);
+      this.statusmap.set("p3x",0);
+      this.statusmap.set("p3y",0);
+
+      this.statusmap.set("qrid",'');      
+
       this.callbackmap.get("onQRDisappear")();
 
   
