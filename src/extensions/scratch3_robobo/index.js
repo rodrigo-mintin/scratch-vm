@@ -751,7 +751,7 @@ class Scratch3Robobo {
    moveWheels(args, util) {
     const {SPEEDR, SPEEDL} = args;
 
-    this.remote.moveWheelsSeparated(SPEEDR, SPEEDL, 2147483647);
+    this.remote.moveWheelsSeparated(SPEEDL, SPEEDR, 2147483647);
     }
 
     /** Moves the wheels of the robot at the specified speeds during the specified time.
@@ -776,13 +776,13 @@ class Scratch3Robobo {
         if (WAIT=='true') {
             return new Promise(resolve => {
 
-            this.remote.moveWheelsSeparatedWait(SPEEDR, SPEEDL, TIME ,resolve);
+            this.remote.moveWheelsSeparatedWait(SPEEDL, SPEEDR, TIME ,resolve);
             
             unlock = false;
             })
         }
         else{
-            this.remote.moveWheelsSeparated(SPEEDR, SPEEDL, TIME);
+            this.remote.moveWheelsSeparated(SPEEDL, SPEEDR, TIME);
         }
     }
   
