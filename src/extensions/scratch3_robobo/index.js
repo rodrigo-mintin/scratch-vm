@@ -8,25 +8,25 @@ const Runtime = require('../../engine/runtime');
 const MathUtil = require('../../util/math-util');
 
 class Scratch3Robobo {
-    constructor (runtime) {
+    constructor(runtime) {
         this.runtime = runtime;
-        this.onClap = false;     
+        this.onClap = false;
         this.extensionId = 'robobo';  // The ID you specified in scratch-gui  
-        this.runtime.on('ROBOBO_CONNECT_BUTTON_CLICK', this.connect.bind(this));     
-        this.runtime.on('ROBOBO_DISCONNECT_BUTTON_CLICK', this.disconnect.bind(this));     
+        this.runtime.on('ROBOBO_CONNECT_BUTTON_CLICK', this.connect.bind(this));
+        this.runtime.on('ROBOBO_DISCONNECT_BUTTON_CLICK', this.disconnect.bind(this));
     }
-    getInfo () {
+    getInfo() {
         return {
-            id: this.extensionId, 
+            id: this.extensionId,
             name: 'Robobo',
-            blocks: [    
+            blocks: [
                 {
                     opcode: 'baseActuationTitle',
                     text: 'BASE ACTUATION BLOCKS',
-                    blockType: BlockType.HAT,        
+                    blockType: BlockType.HAT,
                     arguments: {
                     }
-                },                         
+                },
                 {
                     opcode: 'stopMotors',
                     text: 'Stop [MOTOR] motors',
@@ -36,7 +36,7 @@ class Scratch3Robobo {
                             type: ArgumentType.STRING,
                             defaultValue: 'all',
                             menu: 'stopmotorsmenu',
-                        },                        
+                        },
                     }
                 },
                 {
@@ -73,7 +73,7 @@ class Scratch3Robobo {
                         },
                         WAIT: {
                             type: ArgumentType.STRING,
-                            menu:'booleanmenu',
+                            menu: 'booleanmenu',
                             defaultValue: 'true'
                         }
                     }
@@ -85,7 +85,7 @@ class Scratch3Robobo {
                     arguments: {
                         WHEELS: {
                             type: ArgumentType.STRING,
-                            menu:'wheeldegreesmenu',
+                            menu: 'wheeldegreesmenu',
                             defaultValue: 'both'
                         },
                         SPEED: {
@@ -97,7 +97,7 @@ class Scratch3Robobo {
                             defaultValue: '180'
                         }
                     }
-                },                                                              
+                },
                 {
                     opcode: 'movePanTo',
                     text: 'Move pan to position [POSITION] with speed [SPEED] and wait [WAIT]',
@@ -113,7 +113,7 @@ class Scratch3Robobo {
                         },
                         WAIT: {
                             type: ArgumentType.STRING,
-                            menu:'booleanmenu',
+                            menu: 'booleanmenu',
                             defaultValue: 'true'
                         }
                     }
@@ -133,11 +133,11 @@ class Scratch3Robobo {
                         },
                         WAIT: {
                             type: ArgumentType.STRING,
-                            menu:'booleanmenu',
+                            menu: 'booleanmenu',
                             defaultValue: 'true'
                         }
                     }
-                },                
+                },
                 {
                     opcode: 'setLedColorTo',
                     text: 'Set led [LED] to color [COLOR]',
@@ -151,18 +151,18 @@ class Scratch3Robobo {
                         COLOR: {
                             type: ArgumentType.STRING,
                             defaultValue: 'blue',
-                            menu:'colormenu',
+                            menu: 'colormenu',
                         }
                     }
                 },
-                '---',      
+                '---',
                 {
                     opcode: 'baseSensingTitle',
                     text: 'BASE SENSING BLOCKS',
-                    blockType: BlockType.HAT,        
+                    blockType: BlockType.HAT,
                     arguments: {
                     }
-                },                           
+                },
                 {
                     opcode: 'readWheelPosition',
                     text: 'Read [WHEEL] wheel position',
@@ -177,10 +177,10 @@ class Scratch3Robobo {
                             type: ArgumentType.STRING,
                             defaultValue: '1'
                         },
-                        
+
                         WAIT: {
                             type: ArgumentType.STRING,
-                            menu:'booleanmenu',
+                            menu: 'booleanmenu',
                             defaultValue: 'true'
                         }
                     }
@@ -195,26 +195,26 @@ class Scratch3Robobo {
                             defaultValue: 'right',
                             menu: 'wheelmenu',
                         },
-                        
+
                     }
-                },   
+                },
                 {
                     opcode: 'resetWheelEncoders',
                     text: 'Reset wheel encoders',
                     blockType: BlockType.COMMAND,
-                    
-                },                              
+
+                },
                 {
                     opcode: 'readPanPosition',
                     text: 'Read pan position',
                     blockType: BlockType.REPORTER,
-                    
+
                 },
                 {
                     opcode: 'readTiltPosition',
                     text: 'Read tilt position',
                     blockType: BlockType.REPORTER,
-                    
+
                 },
                 {
                     opcode: 'readIRSensor',
@@ -225,17 +225,17 @@ class Scratch3Robobo {
                             type: ArgumentType.STRING,
                             defaultValue: 'Front-C',
                             menu: 'irmenu',
-                        },                        
+                        },
                     }
                 },
-                '---',   
+                '---',
                 {
                     opcode: 'smartphoneActuationTitle',
                     text: 'SMARTPHONE ACTUATION BLOCKS',
-                    blockType: BlockType.HAT,        
+                    blockType: BlockType.HAT,
                     arguments: {
                     }
-                },                                
+                },
                 {
                     opcode: 'setEmotionTo',
                     text: 'Set Robobo emotion to [EMOTION]',
@@ -246,7 +246,7 @@ class Scratch3Robobo {
                             defaultValue: 'normal',
                             menu: 'emotionsmenu',
                         },
-                        
+
                     }
                 },
                 {
@@ -258,10 +258,10 @@ class Scratch3Robobo {
                             type: ArgumentType.STRING,
                             defaultValue: 'Hola mundo'
                         },
-                        
+
                         WAIT: {
                             type: ArgumentType.STRING,
-                            menu:'booleanmenu',
+                            menu: 'booleanmenu',
                             defaultValue: 'true'
                         }
                     }
@@ -274,8 +274,8 @@ class Scratch3Robobo {
                         SOUND: {
                             type: ArgumentType.STRING,
                             defaultValue: 'purr',
-                            menu:'soundmenu',
-                        },                        
+                            menu: 'soundmenu',
+                        },
                     }
                 },
                 {
@@ -291,10 +291,10 @@ class Scratch3Robobo {
                             type: ArgumentType.STRING,
                             defaultValue: '1'
                         },
-                        
+
                         WAIT: {
                             type: ArgumentType.STRING,
-                            menu:'booleanmenu',
+                            menu: 'booleanmenu',
                             defaultValue: 'true'
                         }
                     }
@@ -303,10 +303,10 @@ class Scratch3Robobo {
                 {
                     opcode: 'smartphoneSensingTitle',
                     text: 'SMARTPHONE SENSING BLOCKS',
-                    blockType: BlockType.HAT,        
+                    blockType: BlockType.HAT,
                     arguments: {
                     }
-                },                   
+                },
                 {
                     opcode: 'readBatteryLevel',
                     text: 'Read  [BATTERY] battery level',
@@ -317,7 +317,7 @@ class Scratch3Robobo {
                             defaultValue: 'base',
                             menu: 'batterymenu',
                         },
-                        
+
                     }
                 },
                 {
@@ -329,24 +329,24 @@ class Scratch3Robobo {
                             type: ArgumentType.STRING,
                             defaultValue: 'x',
                             menu: 'facemenu',
-                        },                        
+                        },
                     }
                 },
                 {
                     opcode: 'resetFaceSensor',
                     text: 'Reset face sensor',
                     blockType: BlockType.COMMAND,
-                    
+
                 },
                 {
                     opcode: 'readClapCounter',
                     text: 'Read  clap counter',
-                    blockType: BlockType.REPORTER,                   
+                    blockType: BlockType.REPORTER,
                 },
                 {
                     opcode: 'resetClapCounter',
                     text: 'Reset clap counter',
-                    blockType: BlockType.COMMAND,                    
+                    blockType: BlockType.COMMAND,
                 },
                 {
                     opcode: 'readLastNote',
@@ -357,14 +357,14 @@ class Scratch3Robobo {
                             type: ArgumentType.STRING,
                             defaultValue: 'note',
                             menu: 'notemenu',
-                        },                        
+                        },
                     }
                 },
                 {
                     opcode: 'resetLastNote',
                     text: 'Reset last note',
                     blockType: BlockType.COMMAND,
-                    
+
                 },
 
                 {
@@ -372,7 +372,7 @@ class Scratch3Robobo {
                     text: 'Read  [COLOR] blob [TYPE]',
                     blockType: BlockType.REPORTER,
                     arguments: {
-                        
+
                         COLOR: {
                             type: ArgumentType.STRING,
                             defaultValue: 'green',
@@ -383,21 +383,21 @@ class Scratch3Robobo {
                             defaultValue: 'x',
                             menu: 'blobmenu',
                         },
-                        
+
                     }
                 },
                 {
                     opcode: 'resetColorBlobs',
                     text: 'Reset color blobs',
                     blockType: BlockType.COMMAND,
-                    
+
                 },
                 {
                     opcode: 'setColorBlobDetectionActive',
                     text: 'Set active blobs R:[RED], G:[GREEN], B:[BLUE], C:[CUSTOM]',
                     blockType: BlockType.COMMAND,
                     arguments: {
-                        
+
                         RED: {
                             type: ArgumentType.STRING,
                             defaultValue: 'false',
@@ -417,40 +417,40 @@ class Scratch3Robobo {
                             type: ArgumentType.STRING,
                             defaultValue: 'false',
                             menu: 'booleanmenu',
-                        },                        
+                        },
                     }
                 },
                 {
                     opcode: 'readFlingSensor',
                     text: 'Read fling sensor',
                     blockType: BlockType.REPORTER,
-                   
+
                 },
                 {
                     opcode: 'resetFlingSensor',
                     text: 'Reset fling sensor',
                     blockType: BlockType.COMMAND,
-                    
+
                 },
                 {
                     opcode: 'readTapSensor',
                     text: 'Read  tap on [TYPE]',
                     blockType: BlockType.REPORTER,
                     arguments: {
-                        
-                        
+
+
                         TYPE: {
                             type: ArgumentType.STRING,
                             defaultValue: 'x',
                             menu: 'tapmenu',
-                        },                        
+                        },
                     }
                 },
                 {
                     opcode: 'resetTapSensor',
                     text: 'Reset tap sensor',
                     blockType: BlockType.COMMAND,
-                    
+
                 },
                 {
                     opcode: 'readAccelerationSensor',
@@ -461,27 +461,27 @@ class Scratch3Robobo {
                             type: ArgumentType.STRING,
                             defaultValue: 'x',
                             menu: 'accelerationmenu',
-                        },                        
+                        },
                     }
                 },
                 {
                     opcode: 'readOrientationSensor',
                     text: 'Read  orientation on [TYPE] axis',
                     blockType: BlockType.REPORTER,
-                    arguments: {                        
+                    arguments: {
                         TYPE: {
                             type: ArgumentType.STRING,
                             defaultValue: 'yaw',
                             menu: 'orientationmenu',
                         },
-                        
+
                     }
                 },
                 {
                     opcode: 'readBrightnessSensor',
                     text: 'Read brightness sensor',
                     blockType: BlockType.REPORTER,
-                   
+
                 },
                 {
                     opcode: 'readQR',
@@ -493,146 +493,146 @@ class Scratch3Robobo {
                             defaultValue: 'id',
                             menu: 'qrmenu',
                         },
-                        
+
                     }
-                },  
+                },
                 {
                     opcode: 'resetQR',
                     text: 'Reset QR',
                     blockType: BlockType.COMMAND,
-                    
-                },                   
+
+                },
                 {
                     opcode: 'onClapDetected',
                     text: 'When clap is detected',
-                    blockType: BlockType.HAT,                   
+                    blockType: BlockType.HAT,
                 },
-/*                
-                {
-                    opcode: 'onTalkEnded',
-                    text: 'When speech ends',
-                    blockType: BlockType.HAT,                   
-                },
-*/                
+                /*                
+                                {
+                                    opcode: 'onTalkEnded',
+                                    text: 'When speech ends',
+                                    blockType: BlockType.HAT,                   
+                                },
+                */
                 {
                     opcode: 'onBlobDetected',
                     text: 'When a color blob is detected',
-                    blockType: BlockType.HAT,                   
+                    blockType: BlockType.HAT,
                 },
-/*                
-                {
-                    opcode: 'onLowBaseBattDetected',
-                    text: 'When low base battery leve is detected',
-                    blockType: BlockType.HAT,                   
-                },
-                {
-                    opcode: 'onLowPhoneBattDetected',
-                    text: 'When low phone battery leve is detected',
-                    blockType: BlockType.HAT,                   
-                },
-*/                
+                /*                
+                                {
+                                    opcode: 'onLowBaseBattDetected',
+                                    text: 'When low base battery leve is detected',
+                                    blockType: BlockType.HAT,                   
+                                },
+                                {
+                                    opcode: 'onLowPhoneBattDetected',
+                                    text: 'When low phone battery leve is detected',
+                                    blockType: BlockType.HAT,                   
+                                },
+                */
                 {
                     opcode: 'onLostFaceDetected',
                     text: 'When a face is lost',
-                    blockType: BlockType.HAT,                   
+                    blockType: BlockType.HAT,
                 },
                 {
                     opcode: 'onNewFaceDetected',
                     text: 'When a face is detected',
-                    blockType: BlockType.HAT,                   
+                    blockType: BlockType.HAT,
                 },
                 {
                     opcode: 'onTapDetected',
                     text: 'When a tap is detected',
-                    blockType: BlockType.HAT,                   
+                    blockType: BlockType.HAT,
                 },
                 {
                     opcode: 'onFlingDetected',
                     text: 'When a fling is detected',
-                    blockType: BlockType.HAT,                   
-                },                
+                    blockType: BlockType.HAT,
+                },
                 {
                     opcode: 'onNoteDetected',
                     text: 'When a note is detected',
-                    blockType: BlockType.HAT,                   
+                    blockType: BlockType.HAT,
                 },
                 {
                     opcode: 'onQrDetected',
                     text: 'When a QR code is detected',
-                    blockType: BlockType.HAT,                   
+                    blockType: BlockType.HAT,
                 },
                 {
                     opcode: 'onQrAppear',
                     text: 'When a QR code appears',
-                    blockType: BlockType.HAT,                   
+                    blockType: BlockType.HAT,
                 },
                 {
                     opcode: 'onQrDisappear',
                     text: 'When a QR code disappears',
-                    blockType: BlockType.HAT,                   
-                },                
+                    blockType: BlockType.HAT,
+                },
             ],
             menus: {
                 // Required: an identifier for this menu, unique within this extension.
                 booleanmenu: [
-                    'true','false'
+                    'true', 'false'
                 ],
                 ledsmenu: [
-                    'Front-C','Front-L','Front-LL','Front-R','Front-RR','Back-L','Back-R','all'
+                    'Front-C', 'Front-L', 'Front-LL', 'Front-R', 'Front-RR', 'Back-L', 'Back-R', 'all'
                 ],
                 colormenu: [
-                    'off','white','red','blue','cyan','magenta','yellow','green','orange'
+                    'off', 'white', 'red', 'blue', 'cyan', 'magenta', 'yellow', 'green', 'orange'
                 ],
                 emotionsmenu: [
-                    'happy','laughing','surprised','sad','angry','normal','sleeping','tired','afraid'
+                    'happy', 'laughing', 'surprised', 'sad', 'angry', 'normal', 'sleeping', 'tired', 'afraid'
                 ],
                 soundmenu: [
-                    'moan','purr',"angry","approve","disapprove","discomfort","doubtful","laugh","likes","mumble","ouch","thinking"
+                    'moan', 'purr', "angry", "approve", "disapprove", "discomfort", "doubtful", "laugh", "likes", "mumble", "ouch", "thinking"
                 ],
                 stopmotorsmenu: [
-                    'all','wheels','pan','tilt'
+                    'all', 'wheels', 'pan', 'tilt'
                 ],
                 wheelmenu: [
-                    'right','left'
+                    'right', 'left'
                 ],
                 wheeldegreesmenu: [
-                    'both','left','right'
-                ],                
-                irmenu:[
-                    'Front-C','Front-L','Front-LL','Front-R','Front-RR','Back-C','Back-L','Back-R'
+                    'both', 'left', 'right'
+                ],
+                irmenu: [
+                    'Front-C', 'Front-L', 'Front-LL', 'Front-R', 'Front-RR', 'Back-C', 'Back-L', 'Back-R'
                 ],
                 batterymenu: [
-                    'base','phone'
+                    'base', 'phone'
                 ],
                 facemenu: [
-                    'x','y','size','distance'
-                ],                
+                    'x', 'y', 'size', 'distance'
+                ],
                 blobmenu: [
-                    'x','y','area'
+                    'x', 'y', 'area'
                 ],
-                notemenu:[
-                    'note','duration'
+                notemenu: [
+                    'note', 'duration'
                 ],
-                blobcolormenu:[
-                    'red','green','blue','custom'
+                blobcolormenu: [
+                    'red', 'green', 'blue', 'custom'
                 ],
                 tapmenu: [
-                    'x','y','zone'
+                    'x', 'y', 'zone'
                 ],
                 accelerationmenu: [
-                    'x','y','z'
+                    'x', 'y', 'z'
                 ],
                 orientationmenu: [
-                    'yaw','pitch','roll'
+                    'yaw', 'pitch', 'roll'
                 ],
                 qrmenu: [
-                    'id','x','y','size'
+                    'id', 'x', 'y', 'size'
                 ]
             },
         };
     }
-    exponent (args, util) {
-        const {BASE, POWER} = args;
+    exponent(args, util) {
+        const { BASE, POWER } = args;
         return Math.pow(BASE, POWER);
     }
 
@@ -641,49 +641,49 @@ class Scratch3Robobo {
      */
     connect(args, util) {
         this.ip = this.runtime.roboboIP;
-        this.remote = new Remote(this.ip ,'');
-        
+        this.remote = new Remote(this.ip, '');
+
         return new Promise(resolve => {
             this.remote.registerCallback('onConnectionChanges', arg => {
                 this.connectionState = arg;
                 console.log('conection changed: ');
-                console.log(arg); 
+                console.log(arg);
                 if (arg == 2) {
-                    this.runtime.roboboConnectionStablished();                    
+                    this.runtime.roboboConnectionStablished();
                 } else {
                     this.runtime.roboboDisconnectButtonClick();
                 }
                 resolve();
-            }) 
-            this.remote.registerCallback('talkCallback',()=>{this.talkEnded = true;});
-            this.remote.registerCallback('onNewClap',()=>{this.clapDetected = true;});
-            this.remote.registerCallback('onNewBlob',()=>{this.blobDetected = true;});
-            this.remote.registerCallback('onLowBatt',()=>{this.lowBaseBattDetected = true;});
-            this.remote.registerCallback('onLowOboBatt',()=>{this.lowPhoneBattDetected = true;});
-            this.remote.registerCallback('onLostFace',()=>{this.lostFaceDetected = true;});
-            this.remote.registerCallback('onNewFace',()=>{this.newFaceDetected = true;});
-            this.remote.registerCallback('onFall',()=>{this.fallDetected = true;});
-            this.remote.registerCallback('onGap',()=>{this.gapDetected = true;});
-            this.remote.registerCallback('onNewTap',()=>{this.tapDetected = true;});
-            this.remote.registerCallback('onNewFling',()=>{this.flingDetected = true;});
-            this.remote.registerCallback('onError',()=>{});
-            this.remote.registerCallback('onPhrase',()=>{});
-            this.remote.registerCallback('onNewNote',()=>{this.noteDetected = true;});
-            this.remote.registerCallback('onQR',()=>{this.qrDetected = true;});
-            this.remote.registerCallback('onQRAppear',()=>{this.qrAppear = true;});
-            this.remote.registerCallback('onQRDisappear',()=>{this.qrDisappear = true;});
-            this.remote.connect();    
+            })
+            this.remote.registerCallback('talkCallback', () => { this.talkEnded = true; });
+            this.remote.registerCallback('onNewClap', () => { this.clapDetected = true; });
+            this.remote.registerCallback('onNewBlob', () => { this.blobDetected = true; });
+            this.remote.registerCallback('onLowBatt', () => { this.lowBaseBattDetected = true; });
+            this.remote.registerCallback('onLowOboBatt', () => { this.lowPhoneBattDetected = true; });
+            this.remote.registerCallback('onLostFace', () => { this.lostFaceDetected = true; });
+            this.remote.registerCallback('onNewFace', () => { this.newFaceDetected = true; });
+            this.remote.registerCallback('onFall', () => { this.fallDetected = true; });
+            this.remote.registerCallback('onGap', () => { this.gapDetected = true; });
+            this.remote.registerCallback('onNewTap', () => { this.tapDetected = true; });
+            this.remote.registerCallback('onNewFling', () => { this.flingDetected = true; });
+            this.remote.registerCallback('onError', () => { });
+            this.remote.registerCallback('onPhrase', () => { });
+            this.remote.registerCallback('onNewNote', () => { this.noteDetected = true; });
+            this.remote.registerCallback('onQR', () => { this.qrDetected = true; });
+            this.remote.registerCallback('onQRAppear', () => { this.qrAppear = true; });
+            this.remote.registerCallback('onQRDisappear', () => { this.qrDisappear = true; });
+            this.remote.connect();
 
             //Subscribes to "PROJECT_STOP_ALL" event (stop button on gui)
             // When the stop button is pressed, the Robobo motors will be stopped      
-            this.runtime.on('PROJECT_STOP_ALL', this.stopAllMotors.bind(this));                       
+            this.runtime.on('PROJECT_STOP_ALL', this.stopAllMotors.bind(this));
         });
     }
 
-    disconnect (args, util){
+    disconnect(args, util) {
         return new Promise(resolve => {
             this.remote.registerCallback('onConnectionChanges', arg => {
-                this.connectionState = arg; 
+                this.connectionState = arg;
                 resolve();
             })
             this.remote.closeConnection();
@@ -695,51 +695,51 @@ class Scratch3Robobo {
     }
 
 
-    baseActuationTitle(args,util) {
+    baseActuationTitle(args, util) {
 
-    }    
+    }
 
-    baseSensingTitle(args,util) {
+    baseSensingTitle(args, util) {
 
-    }    
+    }
 
-    smartphoneActuationTitle(args,util) {
+    smartphoneActuationTitle(args, util) {
 
-    }    
+    }
 
-    smartphoneSensingTitle(args,util) {
+    smartphoneSensingTitle(args, util) {
 
-    }    
+    }
 
     /**
      * This method is called when the 'PROJECT_STOP_ALL' event is triggered
      */
     stopAllMotors() {
-        this.remote.moveWheelsSeparated(0,0,0);
-        this.remote.moveWheelsSeparated(0,0,0);
+        this.remote.moveWheelsSeparated(0, 0, 1);
+        //this.remote.moveWheelsSeparated(0,0,1);
         this.remote.movePan(180, 0);
-        this.remote.moveTilt(75, 0);         
-    }        
+        this.remote.moveTilt(75, 0);
+    }
 
     /** Stops the movement of the motors
      */
     stopMotors(args, util) {
-        const {MOTOR} = args;
-        switch (MOTOR) {           
+        const { MOTOR } = args;
+        switch (MOTOR) {
             case 'wheels':
-                this.remote.moveWheelsSeparated(0,0,0);
+                this.remote.moveWheelsSeparated(0, 0, 1);
                 break;
             case 'pan':
                 this.remote.movePan(180, 0);
                 break;
             case 'tilt':
-                this.remote.moveTilt(75, 0);                
-                break;  
+                this.remote.moveTilt(75, 0);
+                break;
             default:
-                this.remote.moveWheelsSeparated(0,0,0);
+                this.remote.moveWheelsSeparated(0, 0, 1);
                 this.remote.movePan(180, 0);
-                this.remote.moveTilt(75, 0);                
-                break;                               
+                this.remote.moveTilt(75, 0);
+                break;
         }
     }
 
@@ -748,10 +748,10 @@ class Scratch3Robobo {
      * @param {integer} speedR Speed factor for the right wheel [-100 - 100]
      * @param {integer} speedL Speed factor for the right wheel [-100 - 100]
     */
-   moveWheels(args, util) {
-    const {SPEEDR, SPEEDL} = args;
+    moveWheels(args, util) {
+        const { SPEEDR, SPEEDL } = args;
 
-    this.remote.moveWheelsSeparated(SPEEDL, SPEEDR, 2147483647);
+        this.remote.moveWheelsSeparated(SPEEDL, SPEEDR, 2147483647);
     }
 
     /** Moves the wheels of the robot at the specified speeds during the specified time.
@@ -763,29 +763,29 @@ class Scratch3Robobo {
      * @param {integer} time Time duration of the movement in seconds
      */
     moveWheelsByTime(args, util) {
-        const {SPEEDR, SPEEDL, TIME, WAIT} = args;
-        
+        const { SPEEDR, SPEEDL, TIME, WAIT } = args;
+
         /** prueba sobre target --> sprite seleccionado */
         const steps = 20;
         const radians = MathUtil.degToRad(90 - util.target.direction);
         const dx = steps * Math.cos(radians);
-        const dy = steps * Math.sin(radians);        
+        const dy = steps * Math.sin(radians);
         util.target.setXY(util.target.x + dx, util.target.y + dy);
         /** */
 
-        if (WAIT=='true') {
+        if (WAIT == 'true') {
             return new Promise(resolve => {
 
-            this.remote.moveWheelsSeparatedWait(SPEEDL, SPEEDR, TIME ,resolve);
-            
-            unlock = false;
+                this.remote.moveWheelsSeparatedWait(SPEEDL, SPEEDR, TIME, resolve);
+
+                unlock = false;
             })
         }
-        else{
+        else {
             this.remote.moveWheelsSeparated(SPEEDL, SPEEDR, TIME);
         }
     }
-  
+
     /** Moves the wheels of the robot by some degress at the specified speed.
      * This functions is blocking, it doesn't returns the control until the movement
      * is finished.
@@ -796,12 +796,12 @@ class Scratch3Robobo {
      * 
      */
     moveWheelsByDegrees(args, util) {
-        const {WHEELS, SPEED, DEGREES} = args;
-        return new Promise(resolve => { 
-            this.remote.moveWheelsByDegree(WHEELS, DEGREES, SPEED ,resolve);    
+        const { WHEELS, SPEED, DEGREES } = args;
+        return new Promise(resolve => {
+            this.remote.moveWheelsByDegree(WHEELS, DEGREES, SPEED, resolve);
             unlock = false;
         })
-    }    
+    }
 
     /** Moves the PAN of the base to the specified position at the specified speed
      * 
@@ -809,14 +809,14 @@ class Scratch3Robobo {
      * @param {integer} speed  Speed factor [0..100]
      */
     movePanTo(args, util) {
-        const {POSITION, SPEED, WAIT} = args;
+        const { POSITION, SPEED, WAIT } = args;
 
-        if (WAIT=='true') {
+        if (WAIT == 'true') {
             return new Promise(resolve => {
-             this.remote.movePanWait(Number(POSITION), SPEED, resolve);
+                this.remote.movePanWait(Number(POSITION), SPEED, resolve);
             });
         }
-        else{
+        else {
             this.remote.movePan(Number(POSITION), SPEED);
         }
     }
@@ -828,14 +828,14 @@ class Scratch3Robobo {
      * @param {integer} speed  Speed factor [0..100]
      */
     moveTiltTo(args, util) {
-        const {POSITION, SPEED, WAIT} = args;
+        const { POSITION, SPEED, WAIT } = args;
 
-        if (WAIT=='true') {
+        if (WAIT == 'true') {
             return new Promise(resolve => {
-             this.remote.moveTiltWait(POSITION, SPEED, resolve);
+                this.remote.moveTiltWait(POSITION, SPEED, resolve);
             });
         }
-        else{
+        else {
             this.remote.moveTilt(POSITION, SPEED);
         }
     }
@@ -847,9 +847,9 @@ class Scratch3Robobo {
      * @param {string} color The new color ['off','white','red','blue','cyan','magenta','yellow','green','orange']
      */
     setLedColorTo(args, util) {
-        const {LED, COLOR} = args;
+        const { LED, COLOR } = args;
 
-        this.remote.setLedColor(`${LED}`,COLOR);
+        this.remote.setLedColor(`${LED}`, COLOR);
     }
 
     /** Changes the emotion of showed by the face of Robobo
@@ -857,9 +857,9 @@ class Scratch3Robobo {
      * @param {string} emotion One of ['happy','laughing','surprised','sad','angry','normal','sleeping','tired','afraid']
      */
     setEmotionTo(args, util) {
-        const {EMOTION} = args;
+        const { EMOTION } = args;
 
-        this.remote.changeEmotion(EMOTION);        
+        this.remote.changeEmotion(EMOTION);
     }
 
 
@@ -868,14 +868,14 @@ class Scratch3Robobo {
      * @param {string} text The text to say
      */
     sayText(args, util) {
-        const {TEXT, WAIT} = args;
+        const { TEXT, WAIT } = args;
 
-        if (WAIT == 'true'){
+        if (WAIT == 'true') {
             return new Promise(resolve => {
-                this.remote.talk(TEXT,resolve);
+                this.remote.talk(TEXT, resolve);
             });
-        }else{
-            this.remote.talk(TEXT,()=>(a=1));
+        } else {
+            this.remote.talk(TEXT, () => (a = 1));
 
         }
     }
@@ -885,9 +885,9 @@ class Scratch3Robobo {
      * @param {string} sound One of ['moan','purr',"angry","approve","disapprove","discomfort","doubtful","laugh","likes","mumble","ouch","thinking","various"]
      */
     playSound(args, util) {
-        const {SOUND} = args;
+        const { SOUND } = args;
 
-        this.remote.playEmotionSound(SOUND);    
+        this.remote.playEmotionSound(SOUND);
     }
 
     /** Commands the robot to play a musical note
@@ -896,49 +896,49 @@ class Scratch3Robobo {
      * @param {integer} time Duration of the note in seconds (decimals can be used to used, like 0.2 or 0.5) 
      */
     playNote(args, util) {
-        const {NOTE, TIME, WAIT} = args;
+        const { NOTE, TIME, WAIT } = args;
 
-        if (WAIT == 'true'){
+        if (WAIT == 'true') {
             return new Promise(resolve => {
-                this.remote.playNote(NOTE,TIME*1000);
-                setTimeout(resolve,TIME*1000)
+                this.remote.playNote(NOTE, TIME * 1000);
+                setTimeout(resolve, TIME * 1000)
             })
         }
-        else{
-            this.remote.playNote(NOTE,time*1000); 
+        else {
+            this.remote.playNote(NOTE, time * 1000);
             //the Robobo remote expects millis        
         }
     }
 
-        /** Returns the position of the wheel in degrees
-     *  
-     * @param {string} wheel - One of [left, right]
-     * @returns the position of the wheel in degress
-     */
+    /** Returns the position of the wheel in degrees
+ *  
+ * @param {string} wheel - One of [left, right]
+ * @returns the position of the wheel in degress
+ */
     readWheelPosition(args, util) {
-        const {WHEEL} = args;
-        return this.remote.getWheel(WHEEL,'position');
+        const { WHEEL } = args;
+        return this.remote.getWheel(WHEEL, 'position');
     }
 
-        /** Returns the position of the wheel in degrees
-     *  
-     * @param {string} wheel - One of [left, right]
-     * @returns the speed of the wheel 
-     */
+    /** Returns the position of the wheel in degrees
+ *  
+ * @param {string} wheel - One of [left, right]
+ * @returns the speed of the wheel 
+ */
     readWheelSpeed(args, util) {
-        const {WHEEL} = args;
+        const { WHEEL } = args;
 
-        return this.remote.getWheel(WHEEL,'speed');
+        return this.remote.getWheel(WHEEL, 'speed');
     }
 
-    
+
     /**
      * Resets the encoders of the wheels
      */
     resetWheelEncoders(args, util) {
         this.remote.resetEncoders();
     }
-    
+
 
     /** Returns the current position of the PAN
      * 
@@ -962,7 +962,7 @@ class Scratch3Robobo {
      * @returns {integer} the current value of the IR
      */
     readIRSensor(args, util) {
-        const {SENSOR} = args;
+        const { SENSOR } = args;
         return this.remote.getIRValue(SENSOR);
     }
 
@@ -972,10 +972,10 @@ class Scratch3Robobo {
      * @returns {integer} the battery level of the base or the smartphone
      */
     readBatteryLevel(args, util) {
-        const {BATTERY} = args;
-        if (BATTERY == 'base'){
+        const { BATTERY } = args;
+        if (BATTERY == 'base') {
             return this.remote.checkBatt();
-        }else{
+        } else {
             return this.remote.checkOboBatt();
         }
     }
@@ -991,18 +991,18 @@ class Scratch3Robobo {
      * @returns the position and distance of the last face detected by the robot
      */
     readFaceSensor(args, util) {
-        const {TYPE} = args;
+        const { TYPE } = args;
 
-        if (TYPE == 'distance'){
+        if (TYPE == 'distance') {
             return this.remote.getFaceDist();
-        }else if (TYPE == 'size'){
+        } else if (TYPE == 'size') {
             return this.remote.getFaceSize();
-        }else if (TYPE == 'x'){
+        } else if (TYPE == 'x') {
             return this.remote.getFaceCoord('x');
-        }else{
+        } else {
             return this.remote.getFaceCoord('y');
         }
-        
+
     }
 
     /** Resets the face sensor.
@@ -1038,16 +1038,16 @@ class Scratch3Robobo {
      * @memberof Robobo
      */
     readLastNote(args, util) {
-        const {TYPE} = args;
+        const { TYPE } = args;
 
-        if (TYPE == 'note'){
+        if (TYPE == 'note') {
             return this.remote.getLastNote()
         }
-        else{            
+        else {
             return this.remote.getLastNoteDuration()
         }
     }
-    
+
     /** Resets the last note registered by the note sensor
      *
      *
@@ -1057,29 +1057,29 @@ class Scratch3Robobo {
         this.remote.resetNoteSensor();
     }
 
-        /** Reads the last detected blob of color of the indicated color
-     *
-     *
-     * @param {*} color Color of the blob
-     * @returns The position of the blob (x,y) and the area (area)
-     * @memberof Robobo
-     */
+    /** Reads the last detected blob of color of the indicated color
+ *
+ *
+ * @param {*} color Color of the blob
+ * @returns The position of the blob (x,y) and the area (area)
+ * @memberof Robobo
+ */
     readColorBlob(args, util) {
-        const {COLOR, TYPE} = args;
+        const { COLOR, TYPE } = args;
 
-        if(TYPE == 'x'){
-            return this.remote.getBlobCoord(COLOR,'x')
-        }else if (TYPE == 'y'){
-            return this.remote.getBlobCoord(COLOR,'y')
-        }else{
+        if (TYPE == 'x') {
+            return this.remote.getBlobCoord(COLOR, 'x')
+        } else if (TYPE == 'y') {
+            return this.remote.getBlobCoord(COLOR, 'y')
+        } else {
             return this.remote.getBlobSize(COLOR)
         }
     }
-     /**
-     * Resets the color blob detector
-     *
-     * @memberof Robobo
-     */
+    /**
+    * Resets the color blob detector
+    *
+    * @memberof Robobo
+    */
     resetColorBlobs() {
         this.remote.resetBlobSensor();
     }
@@ -1095,7 +1095,7 @@ class Scratch3Robobo {
      * @memberof Robobo
      */
     setColorBlobDetectionActive(args, util) {
-        const {RED, GREEN, BLUE, CUSTOM} = args;
+        const { RED, GREEN, BLUE, CUSTOM } = args;
 
         this.remote.configureBlobDetection(RED, GREEN, BLUE, CUSTOM);
     }
@@ -1126,14 +1126,14 @@ class Scratch3Robobo {
      * @memberof Robobo
      */
     readTapSensor(args, util) {
-        const {TYPE} = args;
+        const { TYPE } = args;
 
-        if (TYPE == 'x'){
+        if (TYPE == 'x') {
             return this.remote.getTapCoord('x')
-        }else if (TYPE == 'y'){
+        } else if (TYPE == 'y') {
             return this.remote.getTapCoord('y')
 
-        }else{
+        } else {
             return this.remote.getTapZone()
         }
     }
@@ -1155,9 +1155,9 @@ class Scratch3Robobo {
      * @memberof Robobo
      */
     readOrientationSensor(args, util) {
-        const {TYPE} = args;
+        const { TYPE } = args;
 
-        return this.remote.getOrientation(TYPE)        
+        return this.remote.getOrientation(TYPE)
     }
     /**
      * Reads the acceleration sensor
@@ -1166,9 +1166,9 @@ class Scratch3Robobo {
      * @memberof Robobo
      */
     readAccelerationSensor(args, util) {
-        const {TYPE} = args;
-        
-        return this.remote.getAcceleration(TYPE)        
+        const { TYPE } = args;
+
+        return this.remote.getAcceleration(TYPE)
     }
 
     /**
@@ -1188,10 +1188,10 @@ class Scratch3Robobo {
      * @memberof Robobo
      */
     readQR(args, util) {
-        const {TYPE} = args;        
-        switch(TYPE) {
+        const { TYPE } = args;
+        switch (TYPE) {
             case "id":
-                return this.remote.getQRId();                  
+                return this.remote.getQRId();
             case "x":
                 return this.remote.getQRCoord('x');
             case "y":
@@ -1199,131 +1199,131 @@ class Scratch3Robobo {
             case "size":
                 return this.remote.getQRDist();
             default:
-                return this.remote.getQRId();                  
-          }          
+                return this.remote.getQRId();
+        }
     }
 
-     /**
-     * Resets the color blob detector
-     *
-     * @memberof Robobo
-     */
+    /**
+    * Resets the color blob detector
+    *
+    * @memberof Robobo
+    */
     resetQR() {
         this.remote.resetQRSensor();
-    }    
+    }
 
-    onClapDetected(){
-        if(this.clapDetected){
+    onClapDetected() {
+        if (this.clapDetected) {
             this.clapDetected = false;
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    onTalkEnded(){
-        if(this.talkEnded){
+    onTalkEnded() {
+        if (this.talkEnded) {
             this.talkEnded = false;
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    onBlobDetected(){
-        if(this.blobDetected){
+    onBlobDetected() {
+        if (this.blobDetected) {
             this.blobDetected = false;
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    onLowBaseBattDetected(){
-        if(this.lowBaseBattDetected){
+    onLowBaseBattDetected() {
+        if (this.lowBaseBattDetected) {
             this.lowBaseBattDetected = false;
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    onLowPhoneBattDetected(){
-        if(this.lowPhoneBattDetected){
+    onLowPhoneBattDetected() {
+        if (this.lowPhoneBattDetected) {
             this.lowPhoneBattDetected = false;
             return true;
-        }else{
+        } else {
             return false;
         }
     }
-    onLostFaceDetected(){
-        if(this.lostFaceDetected){
+    onLostFaceDetected() {
+        if (this.lostFaceDetected) {
             this.lostFaceDetected = false;
             return true;
-        }else{
+        } else {
             return false;
         }
     }
-    onNewFaceDetected(){
-        if(this.newFaceDetected){
+    onNewFaceDetected() {
+        if (this.newFaceDetected) {
             this.newFaceDetected = false;
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    onTapDetected(){
-        if(this.tapDetected){
+    onTapDetected() {
+        if (this.tapDetected) {
             this.tapDetected = false;
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    onFlingDetected(){
-        if(this.flingDetected){
+    onFlingDetected() {
+        if (this.flingDetected) {
             this.flingDetected = false;
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    onNoteDetected(){
-        if(this.noteDetected){
+    onNoteDetected() {
+        if (this.noteDetected) {
             this.noteDetected = false;
             return true;
-        }else{
+        } else {
             return false;
         }
     }
-    onQrDetected(){
-        if(this.qrDetected){
+    onQrDetected() {
+        if (this.qrDetected) {
             this.qrDetected = false;
             return true;
-        }else{
+        } else {
             return false;
         }
     }
-    onQrAppear(){
-        if(this.qrAppear){
+    onQrAppear() {
+        if (this.qrAppear) {
             this.qrAppear = false;
             return true;
-        }else{
+        } else {
             return false;
         }
     }
-    onQrDisappear(){
-        if(this.qrDisappear){
+    onQrDisappear() {
+        if (this.qrDisappear) {
             this.qrDisappear = false;
             return true;
-        }else{
+        } else {
             return false;
         }
     }
-    
+
 
 }
-module.exports = Scratch3Robobo; 
+module.exports = Scratch3Robobo;
