@@ -292,6 +292,7 @@ Remote.prototype = {
 
   /** Sends a message to the remote Robobo */
   sendMessage: function(message) {
+    console.log(message);
     this.commandid = this.commandid +1;
     this.ws.send(message);
 
@@ -376,9 +377,26 @@ Remote.prototype = {
             speed:speed
         },
         "id": this.commandid
+      });
+      this.sendMessage(message);
+    }
+  },
+    //ENDOF moveWheelsByTime
+
+  /** Commands the robot to move during some time */
+  stopWheels: function() {
+    
+    var message = JSON.stringify({
+      "name": "MOVE",
+      "parameters": {
+          lspeed: 0,
+          rspeed: 0,
+          time:0
+      },
+      "id": this.commandid
     });
-    this.sendMessage(message);
-  }
+  this.sendMessage(message);
+  
     //ENDOF moveWheelsByTime
   },
 
@@ -504,6 +522,24 @@ Remote.prototype = {
 
   }, //ENDOF movePan
 
+  /** Commands the robot to stop the PAN motor*/
+  stopPan: function() {
+    
+      
+      var message = JSON.stringify({
+          "name": "MOVEPAN",
+          "parameters": {
+              pos: 180,
+              speed:0
+          },
+          "id": this.commandid
+      });
+
+      this.sendMessage(message);
+    
+
+  }, //ENDOF stopPan
+
 
   /** Commands the robot to move the PAN to the specified position
    * and waits until the movement finishes */
@@ -607,6 +643,25 @@ Remote.prototype = {
 
   },//ENDOF moveTilt
 
+  /** Commands the robot to stop the TILT */
+  stopTilt: function () {
+    
+  
+      
+
+      var message = JSON.stringify({
+          "name": "MOVETILT",
+          "parameters": {
+              pos: 75,
+              speed:0
+          },
+          "id": this.commandid
+      });
+      
+      this.sendMessage(message);
+    
+
+  },//ENDOF stopTilt
 
   /** Commands the robot to move the TILT to an specified position
    * and waits until the robot ends the movement */
@@ -1446,7 +1501,8 @@ Remote.prototype = {
       }
     }
     else if (msg.name == "UNLOCK-MOVE") {
-      //console.SET-SENSOR-FREQUENCYlog('UNLOCK-MOVE '+msg.value['blockid']);
+      //console.SET-SENSOR-FREQUENCY
+      console.log('UNLOCK-MOVE '+msg.value['blockid']);
       //(this.blockingcallbackmap.get(""+msg.value['blockid']))();
       if(!!this.wheelsCallbackMap.get(msg.value['blockid'])){
         this.wheelsCallbackMap.get(msg.value['blockid'])();
@@ -1456,7 +1512,7 @@ Remote.prototype = {
       }
     }
     else if (msg.name == "UNLOCK-TILT") {
-      //console.log('UNLOCK-TILT '+msg.value['blockid']);
+      console.log('UNLOCK-TILT '+msg.value['blockid']);
       //(this.blockingcallbackmap.get(""+msg.value['blockid']))();
       if(!!this.tiltCallbackMap.get(msg.value['blockid'])){
         this.tiltCallbackMap.get(msg.value['blockid'])();
@@ -1466,7 +1522,7 @@ Remote.prototype = {
       }
     }
     else if (msg.name == "UNLOCK-PAN") {
-      //console.log('UNLOCK-PAN '+msg.value['blockid']);
+      console.log('UNLOCK-PAN '+msg.value['blockid']);
       //(this.blockingcallbackmap.get(""+msg.value['blockid']))();
       if(!!this.panCallbackMap.get(msg.value['blockid'])){
         this.panCallbackMap.get(msg.value['blockid'])();
@@ -1476,7 +1532,7 @@ Remote.prototype = {
       }
     }
     else if (msg.name == "UNLOCK-DEGREES") {
-      //console.log("UNLOCK-DEGREES"+msg.value['blockid']);
+      console.log("UNLOCK-DEGREES"+msg.value['blockid']);
       //(this.blockingcallbackmap.get(""+msg.value['blockid']))();
       if(!!this.wheelsCallbackMap.get(msg.value['blockid'])){
         this.wheelsCallbackMap.get(msg.value['blockid'])();

@@ -715,10 +715,9 @@ class Scratch3Robobo {
      * This method is called when the 'PROJECT_STOP_ALL' event is triggered
      */
     stopAllMotors() {
-        this.remote.moveWheelsSeparated(0, 0, 1);
-        //this.remote.moveWheelsSeparated(0,0,1);
-        this.remote.movePan(180, 0);
-        this.remote.moveTilt(75, 0);
+        this.remote.stopWheels();
+        this.remote.stopPan();
+        this.remote.stopTilt();
     }
 
     /** Stops the movement of the motors
@@ -727,18 +726,18 @@ class Scratch3Robobo {
         const { MOTOR } = args;
         switch (MOTOR) {
             case 'wheels':
-                this.remote.moveWheelsSeparated(0, 0, 1);
+                this.remote.stopWheels();
                 break;
             case 'pan':
-                this.remote.movePan(180, 0);
+                this.remote.stopPan();
                 break;
             case 'tilt':
-                this.remote.moveTilt(75, 0);
+                this.remote.stopTilt();
                 break;
             default:
-                this.remote.moveWheelsSeparated(0, 0, 1);
-                this.remote.movePan(180, 0);
-                this.remote.moveTilt(75, 0);
+                this.remote.stopWheels();
+                this.remote.stopPan();
+                this.remote.stopTilt();
                 break;
         }
     }
@@ -897,7 +896,7 @@ class Scratch3Robobo {
      */
     playNote(args, util) {
         const { NOTE, TIME, WAIT } = args;
-
+        console.log(args);
         if (WAIT == 'true') {
             return new Promise(resolve => {
                 this.remote.playNote(NOTE, TIME * 1000);
@@ -905,7 +904,7 @@ class Scratch3Robobo {
             })
         }
         else {
-            this.remote.playNote(NOTE, time * 1000);
+            this.remote.playNote(NOTE, TIME * 1000);
             //the Robobo remote expects millis        
         }
     }
