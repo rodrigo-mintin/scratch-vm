@@ -8,15 +8,13 @@ const Renderer = require('../fixtures/fake-renderer');
 const Runtime = require('../../src/engine/runtime');
 const RenderedTarget = require('../../src/sprites/rendered-target');
 
-tap.tearDown(() => process.nextTick(process.exit));
-
 const test = tap.test;
 
 test('deleteSound returns function after deleting or null if nothing was deleted', t => {
     const vm = new VirtualMachine();
-    const sprite = new Sprite();
-    sprite.sounds = [{id: 1}, {id: 2}, {id: 3}];
     const rt = new Runtime();
+    const sprite = new Sprite(null, rt);
+    sprite.sounds = [{id: 1}, {id: 2}, {id: 3}];
     const target = new RenderedTarget(sprite, rt);
     vm.editingTarget = target;
 
@@ -37,10 +35,10 @@ test('deleteSound returns function after deleting or null if nothing was deleted
 
 test('deleteCostume returns function after deleting or null if nothing was deleted', t => {
     const vm = new VirtualMachine();
-    const sprite = new Sprite();
+    const rt = new Runtime();
+    const sprite = new Sprite(null, rt);
     sprite.costumes = [{id: 1}, {id: 2}, {id: 3}];
     sprite.currentCostume = 0;
-    const rt = new Runtime();
     const target = new RenderedTarget(sprite, rt);
     vm.editingTarget = target;
 
@@ -786,10 +784,14 @@ test('shareBlocksToTarget shares global variables without any name changes', t =
         t.type(target.blocks.getBlock('a block').fields.VARIABLE, 'object');
         t.equal(target.blocks.getBlock('a block').fields.VARIABLE.id, 'mock var id');
 
-        t.type(stage.blocks.getBlock('a block'), 'object');
-        t.type(stage.blocks.getBlock('a block').fields, 'object');
-        t.type(stage.blocks.getBlock('a block').fields.VARIABLE, 'object');
-        t.equal(stage.blocks.getBlock('a block').fields.VARIABLE.id, 'mock var id');
+        const newBlockId = Object.keys(stage.blocks._blocks)[0];
+        t.type(stage.blocks.getBlock(newBlockId), 'object');
+        t.type(stage.blocks.getBlock(newBlockId).fields, 'object');
+        t.type(stage.blocks.getBlock(newBlockId).fields.VARIABLE, 'object');
+        t.equal(stage.blocks.getBlock(newBlockId).fields.VARIABLE.id, 'mock var id');
+
+        // Verify the shared block id is different
+        t.notEqual(newBlockId, 'a block');
 
         // Verify that the variables haven't changed, the variable still exists on the
         // stage, it should still have the same name and value, and there should be
@@ -845,10 +847,11 @@ test('shareBlocksToTarget shares a local variable to the stage, creating a globa
         t.type(target.blocks.getBlock('a block').fields.VARIABLE, 'object');
         t.equal(target.blocks.getBlock('a block').fields.VARIABLE.id, 'mock var id');
 
-        t.type(stage.blocks.getBlock('a block'), 'object');
-        t.type(stage.blocks.getBlock('a block').fields, 'object');
-        t.type(stage.blocks.getBlock('a block').fields.VARIABLE, 'object');
-        t.equal(stage.blocks.getBlock('a block').fields.VARIABLE.id, 'StageVarFromLocal_mock var id');
+        const newBlockId = Object.keys(stage.blocks._blocks)[0];
+        t.type(stage.blocks.getBlock(newBlockId), 'object');
+        t.type(stage.blocks.getBlock(newBlockId).fields, 'object');
+        t.type(stage.blocks.getBlock(newBlockId).fields.VARIABLE, 'object');
+        t.equal(stage.blocks.getBlock(newBlockId).fields.VARIABLE.id, 'StageVarFromLocal_mock var id');
 
         // Verify that a new global variable was created, the old one still exists on
         // the target and still has the same name and value, and the new one has
@@ -919,10 +922,11 @@ test('shareBlocksToTarget chooses a fresh name for a new global variable checkin
         t.type(target.blocks.getBlock('a block').fields.VARIABLE, 'object');
         t.equal(target.blocks.getBlock('a block').fields.VARIABLE.id, 'mock var id');
 
-        t.type(stage.blocks.getBlock('a block'), 'object');
-        t.type(stage.blocks.getBlock('a block').fields, 'object');
-        t.type(stage.blocks.getBlock('a block').fields.VARIABLE, 'object');
-        t.equal(stage.blocks.getBlock('a block').fields.VARIABLE.id, 'StageVarFromLocal_mock var id');
+        const newBlockId = Object.keys(stage.blocks._blocks)[0];
+        t.type(stage.blocks.getBlock(newBlockId), 'object');
+        t.type(stage.blocks.getBlock(newBlockId).fields, 'object');
+        t.type(stage.blocks.getBlock(newBlockId).fields.VARIABLE, 'object');
+        t.equal(stage.blocks.getBlock(newBlockId).fields.VARIABLE.id, 'StageVarFromLocal_mock var id');
 
         // Verify that a new global variable was created, the old one still exists on
         // the target and still has the same name and value, and the new one has
@@ -1010,6 +1014,7 @@ test('Starting the VM emits an event', t => {
     });
     vm.start();
     t.equal(started, true);
+    vm.quit();
     t.end();
 });
 
@@ -1047,6 +1052,19 @@ test('toJSON encodes Infinity/NaN as 0, not null', t => {
     t.equal(json.targets[0].variables.id1[1], 0);
     t.equal(json.targets[0].variables.id2[1], 0);
     t.equal(json.targets[0].variables.id3[1], 0);
+
+    t.end();
+});
+
+test('clearFlyoutBlocks removes all of the flyout blocks', t => {
+    const vm = new VirtualMachine();
+    const flyoutBlocks = vm.runtime.flyoutBlocks;
+
+    flyoutBlocks.createBlock(adapter(events.mockVariableBlock)[0]);
+    t.equal(Object.keys(flyoutBlocks._blocks).length, 1);
+
+    vm.clearFlyoutBlocks();
+    t.equal(Object.keys(flyoutBlocks._blocks).length, 0);
 
     t.end();
 });

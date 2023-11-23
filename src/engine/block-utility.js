@@ -21,6 +21,10 @@ class BlockUtility {
          * @type {?Thread}
          */
         this.thread = thread;
+
+        this._nowObj = {
+            now: () => this.sequencer.runtime.currentMSecs
+        };
     }
 
     /**
@@ -46,9 +50,7 @@ class BlockUtility {
      */
     get nowObj () {
         if (this.runtime) {
-            return {
-                now: () => this.runtime.currentMSecs
-            };
+            return this._nowObj;
         }
         return null;
     }
@@ -171,6 +173,13 @@ class BlockUtility {
     }
 
     /**
+     * Initialize procedure parameters in the thread before pushing parameters.
+     */
+    initParams () {
+        this.thread.initParams();
+    }
+
+    /**
      * Store a procedure parameter value by its name.
      * @param {string} paramName The procedure's parameter name.
      * @param {*} paramValue The procedure's parameter value.
@@ -196,9 +205,18 @@ class BlockUtility {
      * @return {Array.<Thread>} List of threads started by this function.
      */
     startHats (requestedHat, optMatchFields, optTarget) {
-        return (
-            this.sequencer.runtime.startHats(requestedHat, optMatchFields, optTarget)
-        );
+        // Store thread and sequencer to ensure we can return to the calling block's context.
+        // startHats may execute further blocks and dirty the BlockUtility's execution context
+        // and confuse the calling block when we return to it.
+        const callerThread = this.thread;
+        const callerSequencer = this.sequencer;
+        const result = this.sequencer.runtime.startHats(requestedHat, optMatchFields, optTarget);
+
+        // Restore thread and sequencer to prior values before we return to the calling block.
+        this.thread = callerThread;
+        this.sequencer = callerSequencer;
+
+        return result;
     }
 
     /**

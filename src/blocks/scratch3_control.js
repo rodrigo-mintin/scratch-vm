@@ -13,6 +13,8 @@ class Scratch3ControlBlocks {
          * @type {number}
          */
         this._counter = 0;
+
+        this.runtime.on('RUNTIME_DISPOSED', this.clearCounter.bind(this));
     }
 
     /**
@@ -165,7 +167,10 @@ class Scratch3ControlBlocks {
         // Create clone
         const newClone = cloneTarget.makeClone();
         if (newClone) {
-            this.runtime.targets.push(newClone);
+            this.runtime.addTarget(newClone);
+
+            // Place behind the original target.
+            newClone.goBehindOther(cloneTarget);
         }
     }
 

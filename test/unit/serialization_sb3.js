@@ -1,6 +1,7 @@
 const test = require('tap').test;
 const path = require('path');
 const VirtualMachine = require('../../src/index');
+const Runtime = require('../../src/engine/runtime');
 const sb3 = require('../../src/serialization/sb3');
 const readFileToBuffer = require('../fixtures/readProjectFile').readFileToBuffer;
 const exampleProjectPath = path.resolve(__dirname, '../fixtures/clone-cleanup.sb2');
@@ -10,6 +11,8 @@ const commentsSB3NoDupeIds = path.resolve(__dirname, '../fixtures/comments_no_du
 const variableReporterSB2ProjectPath = path.resolve(__dirname, '../fixtures/top-level-variable-reporter.sb2');
 const topLevelReportersProjectPath = path.resolve(__dirname, '../fixtures/top-level-reporters.sb3');
 const draggableSB3ProjectPath = path.resolve(__dirname, '../fixtures/draggable.sb3');
+const originSB3ProjectPath = path.resolve(__dirname, '../fixtures/origin.sb3');
+const originAbsentSB3ProjectPath = path.resolve(__dirname, '../fixtures/origin-absent.sb3');
 const FakeRenderer = require('../fixtures/fake-renderer');
 
 test('serialize', t => {
@@ -147,10 +150,10 @@ test('deserialize sb3 project with comments - no duplicate id serialization', t 
         });
 });
 
-test('serialize sb3 preserves sprite layer order', t => {
+test('serializing and deserializing sb3 preserves sprite layer order', t => {
     const vm = new VirtualMachine();
     vm.attachRenderer(new FakeRenderer());
-    vm.loadProject(readFileToBuffer(path.resolve(__dirname, '../fixtures/ordering.sb2')))
+    return vm.loadProject(readFileToBuffer(path.resolve(__dirname, '../fixtures/ordering.sb2')))
         .then(() => {
             // Target get layer order needs a renderer,
             // fake the numbers we would get back from the
@@ -182,8 +185,28 @@ test('serialize sb3 preserves sprite layer order', t => {
             t.equal(result.targets[2].layerOrder, 1);
             t.equal(result.targets[3].layerOrder, 3);
 
-            t.end();
-        });
+            return result;
+        })
+        .then(serializedObject =>
+            sb3.deserialize(
+                JSON.parse(JSON.stringify(serializedObject)), new Runtime(), null, false)
+                .then(({targets}) => {
+                    // First check that the sprites are ordered correctly (as they would
+                    // appear in the target pane)
+                    t.equal(targets[0].sprite.name, 'Stage');
+                    t.equal(targets[1].sprite.name, 'First');
+                    t.equal(targets[2].sprite.name, 'Second');
+                    t.equal(targets[3].sprite.name, 'Third');
+
+                    // Check that they are in the correct layer order (as they would render
+                    // back to front on the stage)
+                    t.equal(targets[0].layerOrder, 0);
+                    t.equal(targets[1].layerOrder, 2);
+                    t.equal(targets[2].layerOrder, 1);
+                    t.equal(targets[3].layerOrder, 3);
+
+                    t.end();
+                }));
 });
 
 test('serializeBlocks', t => {
@@ -269,6 +292,9 @@ test('getExtensionIdForOpcode', t => {
     // does not return anything for opcodes with no extension
     t.false(sb3.getExtensionIdForOpcode('hello'));
 
+    // forbidden characters must be replaced with '-'
+    t.equal(sb3.getExtensionIdForOpcode('hi:there/happy_people'), 'hi-there-happy');
+
     t.end();
 });
 
@@ -297,6 +323,41 @@ test('(#1850) sprite draggability state read when loading SB3 file', t => {
             const sprite1Obj = vm.runtime.targets.find(target => target.sprite.name === 'Sprite1');
             // Sprite1 in project should have draggable set to true
             t.equal(sprite1Obj.draggable, true);
+            t.end();
+        });
+});
+
+test('load origin value from SB3 file json metadata', t => {
+    const vm = new VirtualMachine();
+    vm.loadProject(readFileToBuffer(originSB3ProjectPath))
+        .then(() => {
+            t.type(vm.runtime.origin, 'string');
+        })
+        .then(() => vm.loadProject(readFileToBuffer(originAbsentSB3ProjectPath)))
+        .then(() => {
+            // After loading a project with an origin, then loading one without an origin,
+            // origin value should no longer be set.
+            t.equal(vm.runtime.origin, null);
+            t.end();
+        });
+});
+
+test('serialize origin value if it is present', t => {
+    const vm = new VirtualMachine();
+    vm.loadProject(readFileToBuffer(originSB3ProjectPath))
+        .then(() => {
+            const result = sb3.serialize(vm.runtime);
+            t.type(result.meta.origin, 'string');
+            t.end();
+        });
+});
+
+test('do not serialize origin value if it is not present', t => {
+    const vm = new VirtualMachine();
+    vm.loadProject(readFileToBuffer(originAbsentSB3ProjectPath))
+        .then(() => {
+            const result = sb3.serialize(vm.runtime);
+            t.equal(result.meta.origin, undefined);
             t.end();
         });
 });

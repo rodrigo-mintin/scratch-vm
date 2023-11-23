@@ -15,7 +15,7 @@ const blockIconURI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYA
 
 /**
  * Enum for micro:bit BLE command protocol.
- * https://github.com/LLK/scratch-microbit-firmware/blob/master/protocol.md
+ * https://github.com/scratchfoundation/scratch-microbit-firmware/blob/master/protocol.md
  * @readonly
  * @enum {number}
  */
@@ -25,8 +25,12 @@ const BLECommand = {
     CMD_DISPLAY_LED: 0x82
 };
 
-// TODO: Needs comment
-const BLETimeout = 4500; // TODO: might need tweaking based on how long the peripheral takes to start sending data
+
+/**
+ * A time interval to wait (in milliseconds) before reporting to the BLE socket
+ * that data has stopped coming from the peripheral.
+ */
+const BLETimeout = 4500;
 
 /**
  * A time interval to wait (in milliseconds) while a block that sends a BLE message is running.
@@ -35,8 +39,14 @@ const BLETimeout = 4500; // TODO: might need tweaking based on how long the peri
 const BLESendInterval = 100;
 
 /**
+ * A string to report to the BLE socket when the micro:bit has stopped receiving data.
+ * @type {string}
+ */
+const BLEDataStoppedError = 'micro:bit extension stopped receiving data';
+
+/**
  * Enum for micro:bit protocol.
- * https://github.com/LLK/scratch-microbit-firmware/blob/master/protocol.md
+ * https://github.com/scratchfoundation/scratch-microbit-firmware/blob/master/protocol.md
  * @readonly
  * @enum {string}
  */
@@ -134,7 +144,7 @@ class MicroBit {
          */
         this._busyTimeoutID = null;
 
-        this.disconnect = this.disconnect.bind(this);
+        this.reset = this.reset.bind(this);
         this._onConnect = this._onConnect.bind(this);
         this._onMessage = this._onMessage.bind(this);
     }
@@ -212,7 +222,7 @@ class MicroBit {
             filters: [
                 {services: [BLEUUID.service]}
             ]
-        }, this._onConnect);
+        }, this._onConnect, this.reset);
     }
 
     /**
@@ -229,9 +239,20 @@ class MicroBit {
      * Disconnect from the micro:bit.
      */
     disconnect () {
-        window.clearInterval(this._timeoutID);
         if (this._ble) {
             this._ble.disconnect();
+        }
+
+        this.reset();
+    }
+
+    /**
+     * Reset all the state and timeout/interval ids.
+     */
+    reset () {
+        if (this._timeoutID) {
+            window.clearTimeout(this._timeoutID);
+            this._timeoutID = null;
         }
     }
 
@@ -289,7 +310,10 @@ class MicroBit {
      */
     _onConnect () {
         this._ble.read(BLEUUID.service, BLEUUID.rxChar, true, this._onMessage);
-        this._timeoutID = window.setInterval(this.disconnect, BLETimeout);
+        this._timeoutID = window.setTimeout(
+            () => this._ble.handleDisconnectError(BLEDataStoppedError),
+            BLETimeout
+        );
     }
 
     /**
@@ -316,8 +340,11 @@ class MicroBit {
         this._sensors.gestureState = data[9];
 
         // cancel disconnect timeout and start a new one
-        window.clearInterval(this._timeoutID);
-        this._timeoutID = window.setInterval(this.disconnect, BLETimeout);
+        window.clearTimeout(this._timeoutID);
+        this._timeoutID = window.setTimeout(
+            () => this._ble.handleDisconnectError(BLEDataStoppedError),
+            BLETimeout
+        );
     }
 
     /**
@@ -730,12 +757,30 @@ class Scratch3MicroBitBlocks {
                 }
             ],
             menus: {
-                buttons: this.BUTTONS_MENU,
-                gestures: this.GESTURES_MENU,
-                pinState: this.PIN_STATE_MENU,
-                tiltDirection: this.TILT_DIRECTION_MENU,
-                tiltDirectionAny: this.TILT_DIRECTION_ANY_MENU,
-                touchPins: ['0', '1', '2']
+                buttons: {
+                    acceptReporters: true,
+                    items: this.BUTTONS_MENU
+                },
+                gestures: {
+                    acceptReporters: true,
+                    items: this.GESTURES_MENU
+                },
+                pinState: {
+                    acceptReporters: true,
+                    items: this.PIN_STATE_MENU
+                },
+                tiltDirection: {
+                    acceptReporters: true,
+                    items: this.TILT_DIRECTION_MENU
+                },
+                tiltDirectionAny: {
+                    acceptReporters: true,
+                    items: this.TILT_DIRECTION_ANY_MENU
+                },
+                touchPins: {
+                    acceptReporters: true,
+                    items: ['0', '1', '2']
+                }
             }
         };
     }
