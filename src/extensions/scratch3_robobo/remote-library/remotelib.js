@@ -140,6 +140,7 @@ Remote.prototype = {
 
     this.connectionState = Remote.ConnectionStateEnum.CONNECTING;
 
+    console.log((location.protocol === 'http:' ? 'ws://' : 'wss://') + this.ip + ":" + this.port)
     this.ws = new WebSocket((location.protocol === 'http:' ? 'ws://' : 'wss://') + this.ip + ":" + this.port);
 
     this.ws.onopen = function () {
