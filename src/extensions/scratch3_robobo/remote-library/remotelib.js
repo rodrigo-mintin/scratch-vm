@@ -29,6 +29,7 @@
 function Remote(ip, passwd) {
   this.ip = ip.trim();
   this.port = 40404;
+  this.secureport = 44304;
 
   //Last keep-alive message timestamp
   this.lastKeepAliveTime = 0;
@@ -140,8 +141,9 @@ Remote.prototype = {
 
     this.connectionState = Remote.ConnectionStateEnum.CONNECTING;
 
-    //console.log((location.protocol === 'http:' ? 'ws://' : 'wss://') + this.ip + ":" + this.port)
-    this.ws = new WebSocket('ws://' + this.ip + ":" + this.port);
+    console.log((location.protocol === 'http:' ? 'ws://' : 'wss://') + this.ip + ":" + this.port)
+    this.ws = new WebSocket(location.protocol === 'http:' ? 'ws://' : 'wss://' + this.ip + ":" + location.protocol === 'http:' ? this.port : this.secureport,
+      {ca: "./local_network_cert.pem"});
 
     this.ws.onopen = function () {
       console.log("Connection Stablished");
