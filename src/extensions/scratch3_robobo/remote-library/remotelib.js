@@ -141,8 +141,8 @@ Remote.prototype = {
 
     this.connectionState = Remote.ConnectionStateEnum.CONNECTING;
 
-    console.log((location.protocol === 'http:' ? 'ws://' : 'wss://') + this.ip + ":" + this.port)
-    this.ws = new WebSocket(location.protocol === 'http:' ? 'ws://' : 'wss://' + this.ip + ":" + location.protocol === 'http:' ? this.port : this.secureport,
+    console.log((location.protocol === 'http:' ? 'ws://' : 'wss://') + this.ip + ":" + (location.protocol === 'http:' ? this.port : this.secureport));
+    this.ws = new WebSocket((location.protocol === 'http:' ? 'ws://' : 'wss://') + this.ip + ":" + (location.protocol === 'http:' ? this.port : this.secureport),
       {ca: "./local_network_cert.pem"});
 
     this.ws.onopen = function () {
